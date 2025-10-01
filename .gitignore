@@ -3,3 +3,6 @@
 
 # Ignored files
 *_IGN.*
+
+# Build folder
+build/
