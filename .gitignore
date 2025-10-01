@@ -1,0 +1,5 @@
+# VSCode Folder
+.vscode/
+
+# Ignored files
+*_IGN.*
