@@ -2,7 +2,7 @@
 #define CIDER_H
 
 /*
-    Cider - A small library for path, directory and filename manipulation. Currently, all functions return a malloc'd value which must be freed by the end user, or NULL if something went wrong.
+    Cider - A small library for path, directory and filename manipulation.
 
     Glossary (Using example /home/user/my_file.txt):
         * Extension | The type of file after the period in a file | txt
@@ -12,24 +12,48 @@
         * File | A wildcard encompassing any of the above. Must make sense in contenxt, e.g cannot extract an extension from a filepath | *
 */
 
-#define __cider_instr const char*const restrict
+#if defined(_WIN32) || defined(_WIN64)
+    // Centralized windows definition.
+    #define CIDER_WIN 1
+#endif
 
-// Exec Fullname - Returns a string containing the fullname of the current process.
+#ifdef CIDER_WIN
+    #define CIDER_PATH_DELIM '\\'
+#elif defined(__linux__)
+    #define CIDER_PATH_DELIM '/'
+#else
+    #error Cider currently only supports Windows and Linux.
+#endif
+
+typedef const char * const __restrict __cider_instr_const;
+typedef       char *       __restrict __cider_instr_mut;
+
+// Exec Fullname - Returns a string containing the fullname of the current process. Malloc'd.
 char *cider_exec_fullname();
 
-// To Filepath - Returns the filepath extracted from a file.
-char *cider_to_filepath(__cider_instr file);
+// To Filepath - Returns the filepath extracted from a file. Malloc'd.
+char *cider_to_filepath(__cider_instr_const file);
 
-// To Filename - Returns the filename extracted from file.
-char *cider_to_filename(__cider_instr file);
+// To Filename - Returns the filename extracted from file. Malloc'd.
+char *cider_to_filename(__cider_instr_const file);
 
-// To Extension - Returns the extension extracted from file.
-char *cider_to_extension(__cider_instr file);
+// To Extension - Returns the extension extracted from file. Malloc'd.
+char *cider_to_extension(__cider_instr_const file);
 
-// Forward Slash Delims - Changes all instances of '\'s to '/'s.
-char *cider_fslash_delims(__cider_instr file);
+#if CIDER_PATH_DELIM != '/'
+    // Forward Slash Delims - Changes all instances of '\'s to '/'s. Note: Will not do anything on systems with forward-slashes as default path delimiters.
+    void cider_fslash_delims(__cider_instr_mut file);
+#else
+    // System default is fslashes, no action.
+    #define cider_fslash_delims(NULL)
+#endif
 
-// Back Slash Delims - Changes all instances of '/'s to '\'s.
-char *cider_bslash_delims(__cider_instr file);
+#if CIDER_PATH_DELIM != '\\'
+    // Back Slash Delims - Changes all instances of '/'s to '\'s. Note: Will not do anything on systems with back-slashes as default path delimiters.
+    void cider_bslash_delims(__cider_instr_mut file);
+#else
+    // System default is bslashes, no action.
+    #define cider_bslash_delims(NULL)
+#endif
 
 #endif // CIDER_H

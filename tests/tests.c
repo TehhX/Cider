@@ -2,6 +2,7 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 
 int main()
 {
@@ -20,8 +21,12 @@ int main()
     printf("Exec extension: %s\n", exec_extension ? exec_extension : "COFF, no extension.");
     free(exec_extension);
 
-    char *exec_fslash = cider_fslash_delims(exec_fullname);
+    char *exec_fullname_copy = strcpy(malloc(strlen(exec_fullname) + 1), exec_fullname);
+    cider_fslash_delims(exec_fullname_copy);
+    printf("Exec with '\\'s replaced by '/'s: %s\n", exec_fullname_copy);
+    free(exec_fullname_copy);
+
+    cider_bslash_delims(exec_fullname);
+    printf("Exec with '/'s replaced by '\\'s: %s\n", exec_fullname);
     free(exec_fullname);
-    printf("Exec with '\\'s replaced by '/'s: %s\n", exec_fslash);
-    free(exec_fslash);
 }

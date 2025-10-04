@@ -2,18 +2,9 @@
     TODO:
         * Add debugging tools, error handling
 */
-
 #include "cider.h"
 
-#include "stdlib.h"
-#include "string.h"
-
-#if defined(_WIN32) || defined(_WIN64)
-    #define __cider_win 1
-#endif
-
-#if defined(__cider_win)
-    #define __cider_path_delim '\\'
+#ifdef CIDER_WIN
     #include "libloaderapi.h" // For GetModuleFileNameA(...)
     #ifndef PATH_MAX
         #include "minwindef.h" // Contains MAX_PATH
@@ -22,31 +13,31 @@
 #elif defined(__linux__)
     #include "linux/limits.h" // For PATH_MAX
     #include "unistd.h" // For readlink(...)
-    #define __cider_path_delim '/'
-#else
-    #error Cider currently only supports Windows and Linux.
 #endif
+
+#include "stdlib.h"
+#include "string.h"
 
 char *cider_exec_fullname()
 {
-    char *fullpath = malloc(PATH_MAX + 1);
+    char * const fullpath = malloc(PATH_MAX + 1);
     const int fullpath_len =
 #ifdef __linux__
     readlink("/proc/self/exe", fullpath, PATH_MAX) + 1;
-#elifdef __cider_win
+#elif defined(CIDER_WIN)
     GetModuleFileNameA(0, fullpath, PATH_MAX) + 1;
 #endif
     fullpath[fullpath_len - 1] = 0;
     return realloc(fullpath, fullpath_len);
 }
 
-char *cider_to_filepath(__cider_instr file)
+char *cider_to_filepath(__cider_instr_const file)
 {
     const int file_len = strlen(file);
 
     for (int i = file_len - 1; i >= 0; --i)
     {
-        if (file[i] == __cider_path_delim)
+        if (file[i] == CIDER_PATH_DELIM)
         {
             const int filepath_len = i + 2;
             char *filepath = malloc(filepath_len);
@@ -59,13 +50,13 @@ char *cider_to_filepath(__cider_instr file)
     return 0;
 }
 
-char *cider_to_filename(__cider_instr file)
+char *cider_to_filename(__cider_instr_const file)
 {
     const int file_len = strlen(file);
 
     for (int i = file_len; i >= 0; --i)
     {
-        if (file[i] == __cider_path_delim)
+        if (file[i] == CIDER_PATH_DELIM)
         {
             const int filename_len = file_len - i;
             char *filename = malloc(filename_len);
@@ -78,7 +69,7 @@ char *cider_to_filename(__cider_instr file)
     return 0;
 }
 
-char *cider_to_extension(__cider_instr file)
+char *cider_to_extension(__cider_instr_const file)
 {
     const int file_len = strlen(file);
 
@@ -97,34 +88,28 @@ char *cider_to_extension(__cider_instr file)
     return 0;
 }
 
-char *cider_fslash_delims(__cider_instr file)
+#if !defined(cider_fslash_delims)
+void cider_fslash_delims(__cider_instr_mut file)
 {
-    const int file_len = strlen(file) + 1;
-    char *file_copy = memcpy(malloc(file_len), file, file_len);
-
-    for (int i = 0; i < file_len - 1; ++i)
+    for (int i = 0; file[i]; ++i)
     {
-        if (file_copy[i] == '\\')
+        if (file[i] == '\\')
         {
-            file_copy[i] = '/';
+            file[i] = '/';
         }
     }
-
-    return file_copy;
 }
+#endif
 
-char *cider_bslash_delims(__cider_instr file)
+#if !defined(cider_bslash_delims)
+void cider_bslash_delims(__cider_instr_mut file)
 {
-    const int file_len = strlen(file) + 1;
-    char *file_copy = memcpy(malloc(file_len), file, file_len);
-
-    for (int i = 0; i < file_len - 1; ++i)
+    do
     {
-        if (file_copy[i] == '/')
+        if (*file == '/')
         {
-            file_copy[i] = '\\';
+            *file = '\\';
         }
-    }
-
-    return file_copy;
+    } while (*++file);
 }
+#endif
