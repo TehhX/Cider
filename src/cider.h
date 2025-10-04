@@ -31,17 +31,17 @@ typedef       char *       __restrict __cider_instr_mut;
 // Exec Fullname - Returns a string containing the fullname of the current process. Malloc'd.
 char *cider_exec_fullname();
 
-// To Filepath - Returns the filepath extracted from a file. Malloc'd.
-char *cider_to_filepath(__cider_instr_const file);
+// To Filepath - Returns the filepath extracted from a file. Modifies in place, returns a possibly realloc'd pointer to file.
+char *cider_to_filepath(__cider_instr_mut file);
 
-// To Filename - Returns the filename extracted from file. Malloc'd.
-char *cider_to_filename(__cider_instr_const file);
+// To Filename - Returns the filename extracted from file. Modifies in place, returns a possibly realloc'd pointer to file.
+char *cider_to_filename(__cider_instr_mut file);
 
-// To Extension - Returns the extension extracted from file. Malloc'd.
-char *cider_to_extension(__cider_instr_const file);
+// To Extension - Returns the extension extracted from file. Modifies in place, returns a possibly realloc'd pointer to file.
+char *cider_to_extension(__cider_instr_mut file);
 
 #if CIDER_PATH_DELIM != '/'
-    // Forward Slash Delims - Changes all instances of '\'s to '/'s. Note: Will not do anything on systems with forward-slashes as default path delimiters.
+    // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place. Note: Will not do anything on systems with forward-slashes as default path delimiters.
     void cider_fslash_delims(__cider_instr_mut file);
 #else
     // System default is fslashes, no action.
@@ -49,7 +49,7 @@ char *cider_to_extension(__cider_instr_const file);
 #endif
 
 #if CIDER_PATH_DELIM != '\\'
-    // Back Slash Delims - Changes all instances of '/'s to '\'s. Note: Will not do anything on systems with back-slashes as default path delimiters.
+    // Back Slash Delims - Changes all instances of '/'s to '\'s. Modifies in place. Note: Will not do anything on systems with back-slashes as default path delimiters.
     void cider_bslash_delims(__cider_instr_mut file);
 #else
     // System default is bslashes, no action.

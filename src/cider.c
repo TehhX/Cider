@@ -31,7 +31,7 @@ char *cider_exec_fullname()
     return realloc(fullpath, fullpath_len);
 }
 
-char *cider_to_filepath(__cider_instr_const file)
+char *cider_to_filepath(__cider_instr_mut file)
 {
     const int file_len = strlen(file);
 
@@ -39,52 +39,43 @@ char *cider_to_filepath(__cider_instr_const file)
     {
         if (file[i] == CIDER_PATH_DELIM)
         {
-            const int filepath_len = i + 2;
-            char *filepath = malloc(filepath_len);
-            filepath[filepath_len - 1] = 0;
-            return memcpy(filepath, file, filepath_len - 1);
+            file[i + 1] = 0;
+            return realloc(file, i + 2);
         }
     }
 
-    // No delim detected, return 0:
     return 0;
 }
 
-char *cider_to_filename(__cider_instr_const file)
+char *cider_to_filename(__cider_instr_mut file)
 {
     const int file_len = strlen(file);
 
-    for (int i = file_len; i >= 0; --i)
+    for (int i = file_len - 1; i >= 0; --i)
     {
         if (file[i] == CIDER_PATH_DELIM)
         {
-            const int filename_len = file_len - i;
-            char *filename = malloc(filename_len);
-            filename[filename_len - 1] = 0;
-            return memcpy(filename, file + i + 1, filename_len - 1);
+            memmove(file, file + i + 1, file_len - i);
+            return realloc(file, file_len - i);
         }
     }
 
-    // No delim detected, return 0:
     return 0;
 }
 
-char *cider_to_extension(__cider_instr_const file)
+char *cider_to_extension(__cider_instr_mut file)
 {
     const int file_len = strlen(file);
 
-    for (int i = file_len; i >= 0; --i)
+    for (int i = file_len - 1; i >= 0; --i)
     {
         if (file[i] == '.')
         {
-            const int extension_len = file_len - i;
-            char *extension = malloc(extension_len);
-            extension[extension_len - 1] = 0;
-            return memcpy(extension, file + i + 1, extension_len - 1);
+            memmove(file, file + i + 1, file_len - i);
+            return realloc(file, file_len - i);
         }
     }
 
-    // No delim detected, return 0:
     return 0;
 }
 
