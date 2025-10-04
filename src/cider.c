@@ -31,10 +31,9 @@ char *cider_exec_fullname()
     return realloc(fullpath, fullpath_len);
 }
 
-char *cider_to_filepath(__cider_instr_mut file)
+char *cider_to_filepath(__cider_str_mut file)
 {
     const int file_len = strlen(file);
-
     for (int i = file_len - 1; i >= 0; --i)
     {
         if (file[i] == CIDER_PATH_DELIM)
@@ -43,14 +42,12 @@ char *cider_to_filepath(__cider_instr_mut file)
             return realloc(file, i + 2);
         }
     }
-
     return 0;
 }
 
-char *cider_to_filename(__cider_instr_mut file)
+char *cider_to_filename(__cider_str_mut file)
 {
     const int file_len = strlen(file);
-
     for (int i = file_len - 1; i >= 0; --i)
     {
         if (file[i] == CIDER_PATH_DELIM)
@@ -59,14 +56,12 @@ char *cider_to_filename(__cider_instr_mut file)
             return realloc(file, file_len - i);
         }
     }
-
     return 0;
 }
 
-char *cider_to_extension(__cider_instr_mut file)
+char *cider_to_extension(__cider_str_mut file)
 {
     const int file_len = strlen(file);
-
     for (int i = file_len - 1; i >= 0; --i)
     {
         if (file[i] == '.')
@@ -75,12 +70,11 @@ char *cider_to_extension(__cider_instr_mut file)
             return realloc(file, file_len - i);
         }
     }
-
     return 0;
 }
 
 #if !defined(cider_fslash_delims)
-void cider_fslash_delims(__cider_instr_mut file)
+void cider_fslash_delims(__cider_str_mut file)
 {
     for (int i = 0; file[i]; ++i)
     {
@@ -93,7 +87,7 @@ void cider_fslash_delims(__cider_instr_mut file)
 #endif
 
 #if !defined(cider_bslash_delims)
-void cider_bslash_delims(__cider_instr_mut file)
+void cider_bslash_delims(__cider_str_mut file)
 {
     do
     {
@@ -104,3 +98,20 @@ void cider_bslash_delims(__cider_instr_mut file)
     } while (*++file);
 }
 #endif
+
+char *cider_data_filepath()
+{
+    char *filepath =
+#ifdef CIDER_WIN
+    getenv("APPDATA");
+
+    const int filepath_len = strlen(filepath);
+
+    filepath = strcpy(malloc(filepath_len + 2), filepath);
+    filepath[filepath_len] = CIDER_PATH_DELIM;
+    filepath[filepath_len + 1] = 0;
+#elif defined(__linux__)
+    "/etc/";
+#endif
+    return filepath;
+}

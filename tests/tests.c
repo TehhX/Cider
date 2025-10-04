@@ -28,7 +28,11 @@ int main()
     printf("Exec with '\\'s replaced by '/'s: %s\n", exec_fullname_2);
     free(exec_fullname_2);
 
-    cider_bslash_delims(copy(exec_fullname));
+    cider_bslash_delims(exec_fullname);
     printf("Exec with '/'s replaced by '\\'s: %s\n", exec_fullname);
     free(exec_fullname);
+
+    char *data_filepath = cider_data_filepath();
+    printf("Data path: %s\n", data_filepath);
+    free(data_filepath);
 }
