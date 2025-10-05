@@ -56,7 +56,7 @@ char *cider_to_extension(__cider_str_mut file);
     #define cider_bslash_delims(GARB)
 #endif
 
-// Returns local data folder. %APPDATA% on Windows and "/etc/" on Linux.
+// Returns malloc'd local data folder. %APPDATA% on Windows and "/etc/" on Linux.
 char *cider_data_filepath();
 
 #endif // CIDER_H

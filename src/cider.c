@@ -111,7 +111,7 @@ char *cider_data_filepath()
     filepath[filepath_len] = CIDER_PATH_DELIM;
     filepath[filepath_len + 1] = 0;
 #elif defined(__linux__)
-    "/etc/";
+    strcpy(malloc(sizeof("/etc/")), "/etc/");
 #endif
     return filepath;
 }
