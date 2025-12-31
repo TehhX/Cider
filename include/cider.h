@@ -25,10 +25,10 @@
     #error Cider currently only supports Windows and Linux. Comment this line out if you want to test another platform.
 #endif
 
-typedef const char * const __restrict __cider_str_const;
-typedef       char *       __restrict __cider_str_mut;
+typedef const char *const __restrict __cider_str_const;
+typedef       char *      __restrict __cider_str_mut;
 
-// Returns malloc'd local data folder. %APPDATA% on Windows and "/etc/" on Linux.
+// Returns malloc'd local data folder. %APPDATA%\ on Windows and $HOME/ on Linux.
 extern char *cider_data_filepath();
 
 // Returns a string containing the fullname of the current process. Malloc'd.

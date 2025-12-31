@@ -6,15 +6,20 @@
 
 #if CIDER_PLATFORM == CIDER_PLAT_WIN
     #include "libloaderapi.h" // For GetModuleFileNameA(...)
+
     #ifndef PATH_MAX
         #include "minwindef.h" // Contains MAX_PATH
         #define PATH_MAX MAX_PATH
     #endif
+
+    #define DATA_ENV_KEY "APPDATA"
 #endif
 
 #if CIDER_PLATFORM == CIDER_PLAT_LIN
     #include "linux/limits.h" // For PATH_MAX
     #include "unistd.h" // For readlink(...)
+
+    #define DATA_ENV_KEY "HOME"
 #endif
 
 #include "stdlib.h"
@@ -22,17 +27,15 @@
 
 char *cider_data_filepath()
 {
-#if CIDER_PLATFORM == CIDER_PLAT_WIN
-    char *appdata_table = getenv("APPDATA");
-    const int filepath_len = strlen(appdata_table);
+    char *data_filepath = getenv(DATA_ENV_KEY);
+    const int filepath_len = strlen(data_filepath);
 
-    char *filepath = strcpy(malloc(filepath_len + 2), filepath);
+    char *filepath = strcpy(malloc(filepath_len + 2), data_filepath);
 
     filepath[filepath_len] = CIDER_PATH_DELIM;
     filepath[filepath_len + 1] = 0;
-#elif CIDER_PLATFORM == CIDER_PLAT_LIN
-    return strcpy(malloc(sizeof("~/")), "~/");
-#endif
+
+    return filepath;
 }
 
 char *cider_exec_fullname()
