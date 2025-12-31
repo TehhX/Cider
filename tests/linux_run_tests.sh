@@ -1,12 +1,10 @@
 #! /bin/bash
 
 echo OPTIMIZED:
-    gcc -O3 -Wall -Wextra -o Tests ./tests.c -L../build/ -lcider -I../include/
-    ./Tests
-    rm Tests
+    gcc -fsanitize=address -g -O3 -Wall -Wextra -o Tests_IGN ./tests.c -L../build/ -lcider -I../include/
+    ./Tests_IGN
 
 echo
 echo UNOPTIMIZED:
-    gcc -O0 -Wall -Wextra -o Tests ./tests.c -L../build/ -lcider -I../include/
-    ./Tests
-    rm Tests
+    gcc -fsanitize=address -g -O0 -Wall -Wextra -o Tests_IGN ./tests.c -L../build/ -lcider -I../include/
+    ./Tests_IGN

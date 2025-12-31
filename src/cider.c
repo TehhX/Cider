@@ -20,6 +20,21 @@
 #include "stdlib.h"
 #include "string.h"
 
+char *cider_data_filepath()
+{
+#if CIDER_PLATFORM == CIDER_PLAT_WIN
+    char *appdata_table = getenv("APPDATA");
+    const int filepath_len = strlen(appdata_table);
+
+    char *filepath = strcpy(malloc(filepath_len + 2), filepath);
+
+    filepath[filepath_len] = CIDER_PATH_DELIM;
+    filepath[filepath_len + 1] = 0;
+#elif CIDER_PLATFORM == CIDER_PLAT_LIN
+    return strcpy(malloc(sizeof("~/")), "~/");
+#endif
+}
+
 char *cider_exec_fullname()
 {
     char * const fullpath = malloc(PATH_MAX + 1);
@@ -81,6 +96,22 @@ char *cider_to_extension(__cider_str_mut file)
     return NULL;
 }
 
+char *cider_construct_fullname(__cider_str_const filepath, __cider_str_const filename)
+{
+    const int
+        filepath_len = strlen(filepath),
+        fullname_len = filepath_len + strlen(filename);
+
+    char *fullname = malloc(fullname_len + 1);
+
+    strcpy(fullname, filepath);
+    strcpy(fullname + filepath_len, filename);
+
+    fullname[fullname_len] = '\0';
+
+    return fullname;
+}
+
 #if !defined(cider_fslash_delims)
 void cider_fslash_delims(__cider_str_mut file)
 {
@@ -107,18 +138,3 @@ void cider_bslash_delims(__cider_str_mut file)
     while (*++file);
 }
 #endif
-
-char *cider_data_filepath()
-{
-#if CIDER_PLATFORM == CIDER_PLAT_WIN
-    char *appdata_table = getenv("APPDATA");
-    const int filepath_len = strlen(appdata_table);
-
-    char *filepath = strcpy(malloc(filepath_len + 2), filepath);
-
-    filepath[filepath_len] = CIDER_PATH_DELIM;
-    filepath[filepath_len + 1] = 0;
-#elif CIDER_PLATFORM == CIDER_PLAT_LIN
-    return strcpy(malloc(sizeof("~/")), "~/");
-#endif
-}
