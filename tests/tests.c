@@ -1,4 +1,4 @@
-#include "../src/cider.h"
+#include "../include/cider.h"
 
 #include "stdio.h"
 #include "stdlib.h"

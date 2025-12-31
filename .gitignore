@@ -1,8 +1,8 @@
 # VSCode Folder
-.vscode/
+/.vscode/
 
 # Ignored files
-*_IGN.*
+*_IGN*
 
 # Build folder
-build/
+/build/
