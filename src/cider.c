@@ -20,7 +20,7 @@
 #include "stdlib.h"
 #include "string.h"
 
-inline char *cider_exec_fullname()
+char *cider_exec_fullname()
 {
     char * const fullpath = malloc(PATH_MAX + 1);
     const int fullpath_len =
@@ -33,7 +33,7 @@ inline char *cider_exec_fullname()
     return realloc(fullpath, fullpath_len);
 }
 
-inline char *cider_to_filepath(__cider_str_mut file)
+char *cider_to_filepath(__cider_str_mut file)
 {
     const int file_len = strlen(file);
 
@@ -41,15 +41,15 @@ inline char *cider_to_filepath(__cider_str_mut file)
     {
         if (file[i] == CIDER_PATH_DELIM)
         {
-            file[i + 1] = 0;
+            file[i + 1] = '\0';
             return realloc(file, i + 2);
         }
     }
 
-    return 0;
+    return NULL;
 }
 
-inline char *cider_to_filename(__cider_str_mut file)
+char *cider_to_filename(__cider_str_mut file)
 {
     const int file_len = strlen(file);
 
@@ -62,10 +62,10 @@ inline char *cider_to_filename(__cider_str_mut file)
         }
     }
 
-    return 0;
+    return NULL;
 }
 
-inline char *cider_to_extension(__cider_str_mut file)
+char *cider_to_extension(__cider_str_mut file)
 {
     const int file_len = strlen(file);
 
@@ -78,11 +78,11 @@ inline char *cider_to_extension(__cider_str_mut file)
         }
     }
 
-    return 0;
+    return NULL;
 }
 
 #if !defined(cider_fslash_delims)
-inline void cider_fslash_delims(__cider_str_mut file)
+void cider_fslash_delims(__cider_str_mut file)
 {
     for (int i = 0; file[i]; ++i)
     {
@@ -95,7 +95,7 @@ inline void cider_fslash_delims(__cider_str_mut file)
 #endif
 
 #if !defined(cider_bslash_delims)
-inline void cider_bslash_delims(__cider_str_mut file)
+void cider_bslash_delims(__cider_str_mut file)
 {
     do
     {
@@ -108,7 +108,7 @@ inline void cider_bslash_delims(__cider_str_mut file)
 }
 #endif
 
-inline char *cider_data_filepath()
+char *cider_data_filepath()
 {
 #if CIDER_PLATFORM == CIDER_PLAT_WIN
     char *appdata_table = getenv("APPDATA");

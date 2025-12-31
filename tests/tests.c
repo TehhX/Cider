@@ -1,4 +1,6 @@
-#include "../include/cider.h"
+// None of these tests are currently automated, and must be reviewed by a human.
+
+#include "cider.h"
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -20,7 +22,7 @@ int main()
     free(exec_filename);
 
     char *exec_extension = cider_to_extension(copy(exec_fullname));
-    printf("Exec extension: %s\n", exec_extension ? exec_extension : "COFF, no extension.");
+    printf("Exec extension: %s\n", exec_extension == NULL ? "None" : exec_extension);
     free(exec_extension);
 
     char *exec_fullname_2 = copy(exec_fullname);

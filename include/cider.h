@@ -31,13 +31,13 @@ typedef       char *       __restrict __cider_str_mut;
 // Returns a string containing the fullname of the current process. Malloc'd.
 extern inline char *cider_exec_fullname();
 
-// Returns the filepath extracted from a file. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file.
+// Returns the filepath extracted from a file. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file.
 extern inline char *cider_to_filepath(__cider_str_mut file);
 
-// Returns the filename extracted from file. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file.
+// Returns the filename extracted from file. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file.
 extern inline char *cider_to_filename(__cider_str_mut file);
 
-// Returns the extension extracted from file. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file.
+// Returns the extension extracted from file. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file.
 extern inline char *cider_to_extension(__cider_str_mut file);
 
 #if CIDER_PATH_DELIM != '/'
