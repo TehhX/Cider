@@ -28,11 +28,9 @@ int main()
     free(exec_filepath);
     free(exec_fullname_2);
 
-    char *exec_fullname_3 = copy_str(exec_fullname);
-    char *exec_extension = cider_to_extension(exec_fullname_3);
+    char *exec_extension = cider_to_extension(copy_str(exec_fullname));
     printf("Exec extension: %s\n", exec_extension == NULL ? "None" : exec_extension);
     free(exec_extension);
-    free(exec_fullname_3);
 
     char *exec_fullname_4 = copy_str(exec_fullname);
     cider_fslash_delims(exec_fullname_4);
