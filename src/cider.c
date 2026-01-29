@@ -30,7 +30,7 @@ char *cider_data_filepath()
     memcpy(data_filepath + data_filepath_len, LIN_LOCAL, sizeof(LIN_LOCAL));
  #undef LIN_LOCAL
 #elif CIDER_PLATFORM == CIDER_PLAT_WIN
-    data_filepath = strcpy(malloc(data_filepath_len + 2), data_filepath);
+    data_filepath = memcpy(malloc(data_filepath_len + 2), data_filepath, data_filepath_len);
     data_filepath[data_filepath_len] = CIDER_PATH_DELIM;
     data_filepath[data_filepath_len + 1] = 0;
 #endif
