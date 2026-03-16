@@ -4,8 +4,8 @@
 /*
     Cider - A small library for path, directory and filename manipulation. Contains various cross-platform utilities in the same realm.
         * Supported OS's:
-            *   Linux | Tested each commit on Arch x64.
-            * Windows |                  Rarely tested.
+            *   Linux |                             Tested each commit on Arch x64.
+            * Windows | Rarely tested, sometimes functions are left un-implemented.
         * Find functions below.
         * Report issues, contribute etc at https://github.com/TehhX/Cider.
 
@@ -30,11 +30,14 @@
     #error Cider currently only supports Windows and Linux. Comment this line out if you want to test another platform.
 #endif
 
-// Returns malloc'd local data folder. This will be %appdata%\ on Windows, and ~/.local/share/ on Linux.
+// Returns malloc'd string containing the filepath of the local data folder. This will be %appdata%\ on Windows, and $HOME/.local/share/ on Linux.
 extern char *cider_data_filepath();
 
-// Returns a string containing the fullname of the current process. Malloc'd.
+// Returns malloc'd string containing the fullname of the current process.
 extern char *cider_exec_fullname();
+
+// Returns malloc'd string containing the filepath of the calling directory.
+extern char *cider_calling_filepath();
 
 // Returns the filepath extracted from a file. 'file' must be malloc'd. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file.
 extern char *cider_to_filepath(char *file);
@@ -49,19 +52,19 @@ extern char *cider_to_extension(char *file);
 extern char *cider_construct_fullname(const char *filepath, const char *filename);
 
 #if CIDER_PATH_DELIM != '/'
-    // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters.
-    extern void cider_fslash_delims(char *file);
+    // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system uses forward-slash delimiters, so no action is taken.
+    extern char *cider_fslash_delims(char *const file);
 #else
-    // System default is fslashes, no action.
-    #define cider_fslash_delims(file)
+    // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system does NOT use forward-slash delimiters, so they are changed to forward-slashes.
+    #define cider_fslash_delims(file) file
 #endif
 
 #if CIDER_PATH_DELIM != '\\'
-    // Back Slash Delims - Changes all instances of '/'s to '\'s. Modifies in place. Not intended for use with Cider once delims are not system default. Will not do anything on systems with back-slashes as default path delimiters.
-    extern void cider_bslash_delims(char *file);
+    // Back Slash Delims - Changes all instances of '/'s to '\'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with back-slashes as default path delimiters. This system does NOT use back-slash delimiters, so they are changed to back-slashes.
+    extern char *cider_bslash_delims(char *const file);
 #else
-    // System default is bslashes, no action.
-    #define cider_bslash_delims(file)
+    // Back Slash Delims - Changes all instances of '/'s to '\'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with back-slashes as default path delimiters. This system uses back-slash delimiters, so no action is taken.
+    #define cider_bslash_delims(file) file
 #endif
 
 #endif // CIDER_H

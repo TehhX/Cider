@@ -3,53 +3,85 @@
 #include "stdlib.h"
 #include "string.h"
 
+#include "stdio.h" // REMOVE
+
+#define CIDER_PLAT_WIN_INSERT(CONTENT)
+#define CIDER_PLAT_LIN_INSERT(CONTENT)
+
 #if CIDER_PLATFORM == CIDER_PLAT_WIN
+    #undef CIDER_PLAT_WIN_INSERT
+    #define CIDER_PLAT_WIN_INSERT(CONTENT) CONTENT
+
     #include "libloaderapi.h" // For GetModuleFileNameA(...)
 
     #ifndef PATH_MAX
         #include "minwindef.h" // Contains MAX_PATH
         #define PATH_MAX MAX_PATH
     #endif
-
-    #define home_env_str() getenv("APPDATA")
 #elif CIDER_PLATFORM == CIDER_PLAT_LIN
+    #undef CIDER_PLAT_LIN_INSERT
+    #define CIDER_PLAT_LIN_INSERT(CONTENT) CONTENT
+
     #include "linux/limits.h" // For PATH_MAX
     #include "unistd.h" // For readlink(...)
-
-    #define home_env_str() getenv("HOME")
 #endif
 
 char *cider_data_filepath()
 {
-    char *data_filepath = home_env_str();
+    char *data_filepath =
+        CIDER_PLAT_WIN_INSERT(getenv("APPDATA"))
+        CIDER_PLAT_LIN_INSERT(getenv("HOME"))
+    ;
+
     const int data_filepath_len = strlen(data_filepath);
 
-#if CIDER_PLATFORM == CIDER_PLAT_LIN
- #define LIN_LOCAL "/.local/share/"
-    data_filepath = memcpy(malloc(data_filepath_len + sizeof(LIN_LOCAL)), data_filepath, data_filepath_len);
-    memcpy(data_filepath + data_filepath_len, LIN_LOCAL, sizeof(LIN_LOCAL));
- #undef LIN_LOCAL
-#elif CIDER_PLATFORM == CIDER_PLAT_WIN
-    data_filepath = memcpy(malloc(data_filepath_len + 2), data_filepath, data_filepath_len);
-    data_filepath[data_filepath_len] = CIDER_PATH_DELIM;
-    data_filepath[data_filepath_len + 1] = 0;
-#endif
+    CIDER_PLAT_LIN_INSERT
+    (
+        const char local_share[] = "/.local/share/";
+        data_filepath = memcpy(malloc(data_filepath_len + sizeof(local_share)), data_filepath, data_filepath_len);
+        memcpy(data_filepath + data_filepath_len, local_share, sizeof(local_share));
+    )
+
+    CIDER_PLAT_WIN_INSERT
+    (
+        data_filepath = strcpy(malloc(data_filepath_len + 2), data_filepath);
+        data_filepath[data_filepath_len] = CIDER_PATH_DELIM;
+        data_filepath[data_filepath_len + 1] = 0;
+    )
 
     return data_filepath;
 }
 
 char *cider_exec_fullname()
 {
-    char * const fullpath = malloc(PATH_MAX + 1);
+    char *const exec_fullname = malloc(PATH_MAX + 1);
 
-#if CIDER_PLATFORM == CIDER_PLAT_LIN
-    const int fullpath_len = readlink("/proc/self/exe", fullpath, PATH_MAX) + 1;
-#elif CIDER_PLATFORM == CIDER_PLAT_WIN
-    const int fullpath_len = GetModuleFileNameA(0, fullpath, PATH_MAX) + 1;
+    const int exec_fullname_len =
+        CIDER_PLAT_WIN_INSERT(GetModuleFileNameA(0, exec_fullname, PATH_MAX) + 1)
+        CIDER_PLAT_LIN_INSERT(readlink("/proc/self/exe", exec_fullname, PATH_MAX) + 1)
+    ;
+
+    exec_fullname[exec_fullname_len - 1] = 0;
+    return realloc(exec_fullname, exec_fullname_len);
+}
+
+#if CIDER_PLATFORM != CIDER_PLAT_LIN
+    // TODO: Implement cider_calling_filepath for Windows etc
+    #error cider_calling_filepath() not yet implemented for platforms other than Linux.
 #endif
+char *cider_calling_filepath()
+{
+    char *calling_filepath = malloc(PATH_MAX);
+    getcwd(calling_filepath, PATH_MAX);
 
-    fullpath[fullpath_len - 1] = 0;
-    return realloc(fullpath, fullpath_len);
+    // Length of the filepath includes '/'. getcwd returns sans '/'
+    const int calling_filepath_len = strlen(calling_filepath) + 1;
+    calling_filepath = realloc(calling_filepath, calling_filepath_len + 1);
+
+    calling_filepath[calling_filepath_len - 1] = CIDER_PATH_DELIM;
+    calling_filepath[calling_filepath_len] = '\0';
+
+    return calling_filepath;
 }
 
 char *cider_to_filepath(char *file)
@@ -100,6 +132,7 @@ char *cider_to_extension(char *file)
     return NULL;
 }
 
+// TODO: Start using strcat
 char *cider_construct_fullname(const char *filepath, const char *filename)
 {
     const int
@@ -117,28 +150,31 @@ char *cider_construct_fullname(const char *filepath, const char *filename)
 }
 
 #if !defined(cider_fslash_delims)
-void cider_fslash_delims(char *file)
-{
-    for (int i = 0; file[i]; ++i)
+    char *cider_fslash_delims(char *const file)
     {
-        if (file[i] == '\\')
+        for (int i = 0; file[i]; ++i)
         {
-            file[i] = '/';
+            if (file[i] == CIDER_PATH_DELIM)
+            {
+                file[i] = '/';
+            }
         }
+
+        return file;
     }
-}
 #endif
 
 #if !defined(cider_bslash_delims)
-void cider_bslash_delims(char *file)
-{
-    do
+    char *cider_bslash_delims(char *const file)
     {
-        if (*file == '/')
+        for (int i = 0; file[i]; ++i)
         {
-            *file = '\\';
+            if (file[i] == CIDER_PATH_DELIM)
+            {
+                file[i] = '\\';
+            }
         }
+
+        return file;
     }
-    while (*++file);
-}
 #endif
