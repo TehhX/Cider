@@ -48,23 +48,23 @@ extern char *cider_to_filename(char *file);
 // Returns the extension extracted from file. 'file' must be malloc'd. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file.
 extern char *cider_to_extension(char *file);
 
-// Returns a string containing a fullpath constructed from a provided filepath and filename. Malloc'd.
-extern char *cider_construct_fullname(const char *filepath, const char *filename);
+// Returns a fullpath constructed from a provided filepath and filename. filepath must be malloc'd. Modifies in place, returns a possibly realloc'd pointer to filepath. Essentially a fancy strcat.
+extern char *cider_construct_fullname(char *filepath, const char *filename);
 
 #if CIDER_PATH_DELIM != '/'
     // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system uses forward-slash delimiters, so no action is taken.
-    extern char *cider_fslash_delims(char *const file);
+    extern char *cider_forward_slash_delims(char *const file);
 #else
     // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system does NOT use forward-slash delimiters, so they are changed to forward-slashes.
-    #define cider_fslash_delims(file) file
+    #define cider_forward_slash_delims(file) file
 #endif
 
 #if CIDER_PATH_DELIM != '\\'
     // Back Slash Delims - Changes all instances of '/'s to '\'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with back-slashes as default path delimiters. This system does NOT use back-slash delimiters, so they are changed to back-slashes.
-    extern char *cider_bslash_delims(char *const file);
+    extern char *cider_back_slash_delims(char *const file);
 #else
     // Back Slash Delims - Changes all instances of '/'s to '\'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with back-slashes as default path delimiters. This system uses back-slash delimiters, so no action is taken.
-    #define cider_bslash_delims(file) file
+    #define cider_back_slash_delims(file) file
 #endif
 
 #endif // CIDER_H

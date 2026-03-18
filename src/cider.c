@@ -122,35 +122,27 @@ char *cider_to_extension(char *file)
 
     for (int i = file_len - 1; i >= 0; --i)
     {
-        if (file[i] == '.')
+        // Delim found before '.', no extension
+        if (file[i] == CIDER_PATH_DELIM)
+        {
+            return NULL;
+        }
+        // '.' found, return what's after it
+        else if (file[i] == '.')
         {
             memmove(file, file + i + 1, file_len - i);
             return realloc(file, file_len - i);
         }
     }
-
-    return NULL;
 }
 
-// TODO: Start using strcat
-char *cider_construct_fullname(const char *filepath, const char *filename)
+char *cider_construct_fullname(char *filepath, const char *filename)
 {
-    const int
-        filepath_len = strlen(filepath),
-        fullname_len = filepath_len + strlen(filename);
-
-    char *fullname = malloc(fullname_len + 1);
-
-    strcpy(fullname, filepath);
-    strcpy(fullname + filepath_len, filename);
-
-    fullname[fullname_len] = '\0';
-
-    return fullname;
+    return strcat(realloc(filepath, strlen(filepath) + strlen(filename) + 2), filename);
 }
 
-#if !defined(cider_fslash_delims)
-    char *cider_fslash_delims(char *const file)
+#if !defined(cider_forward_slash_delims)
+    char *cider_forward_slash_delims(char *const file)
     {
         for (int i = 0; file[i]; ++i)
         {
@@ -164,8 +156,8 @@ char *cider_construct_fullname(const char *filepath, const char *filename)
     }
 #endif
 
-#if !defined(cider_bslash_delims)
-    char *cider_bslash_delims(char *const file)
+#if !defined(cider_back_slash_delims)
+    char *cider_back_slash_delims(char *const file)
     {
         for (int i = 0; file[i]; ++i)
         {
