@@ -10,11 +10,12 @@
         * Report issues, contribute etc at https://github.com/TehhX/Cider.
 
     Glossary (Using example /home/user/my_file.txt):
-        * Extension |                          The type of file after the period in a file. |                    txt
-        *  Filename |                           The name of a file including its extension. |            my_file.txt
-        *  Filepath |              The absolute directory up to but excluding the filename. | /home/user/
-        *  Fullname |                         The absolute directory and filepath together. | /home/user/my_file.txt
-        *      File | A wildcard encompassing any of the above. Must make sense in context. | ??????????????????????
+        * Extension |                                          The type of file after the period in a file. |                    txt
+        *  Filename |                                           The name of a file including its extension. |            my_file.txt
+        *  Filepath |                              The absolute directory up to but excluding the filename. | /home/user/
+        *  Fullname |                                         The absolute directory and filepath together. | /home/user/my_file.txt
+        *  Seminame | The filename with any amount of preceeding directories which don't make it a fullname |       user/my_file.txt
+        *      File |                 A wildcard encompassing any of the above. Must make sense in context. | ??????????????????????
 */
 
 #define CIDER_PLAT_LIN 0 // Linux
