@@ -52,6 +52,9 @@ extern char *cider_to_extension(char *file);
 // Returns a fullpath constructed from a provided filepath and filename. filepath must be malloc'd. Modifies in place, returns a possibly realloc'd pointer to filepath. Essentially a fancy strcat.
 extern char *cider_construct_fullname(char *filepath, const char *filename);
 
+// Returns a canonical file from a provided file. Will work with non-existent files.
+extern char *cider_canonicalize_file(const char *file);
+
 #if CIDER_PATH_DELIM != '/'
     // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system uses forward-slash delimiters, so no action is taken.
     extern char *cider_forward_slash_delims(char *const file);

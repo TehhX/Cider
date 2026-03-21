@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(cider LANGUAGES C VERSION 2.0.0)
+project(cider LANGUAGES C VERSION 2.1.0)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED true)
 

@@ -141,6 +141,16 @@ char *cider_construct_fullname(char *filepath, const char *filename)
     return strcat(realloc(filepath, strlen(filepath) + strlen(filename) + 2), filename);
 }
 
+#if CIDER_PLATFORM != CIDER_PLAT_LIN
+    // TODO: Implement cider_canonicalize_file for Windows etc
+    #error cider_canonicalize_file() not yet implemented for platforms other than Linux.
+#endif
+char *cider_canonicalize_file(const char *file)
+{
+    // TODO: Make work for non-existent files
+    return realpath(file, NULL);
+}
+
 #if !defined(cider_forward_slash_delims)
     char *cider_forward_slash_delims(char *const file)
     {
