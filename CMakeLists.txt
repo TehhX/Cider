@@ -11,3 +11,4 @@ target_include_directories(cider PRIVATE include)
 add_subdirectory(tests)
 
 install(TARGETS cider DESTINATION lib)
+install(FILES "${CMAKE_SOURCE_DIR}/include/cider.h" DESTINATION include)
