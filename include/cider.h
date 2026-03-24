@@ -14,7 +14,7 @@
         *  Filename |                                           The name of a file including its extension. |            my_file.txt
         *  Filepath |                              The absolute directory up to but excluding the filename. | /home/user/
         *  Fullname |                                         The absolute directory and filepath together. | /home/user/my_file.txt
-        *  Seminame | The filename with any amount of preceeding directories which don't make it a fullname |       user/my_file.txt
+        *  Seminame | The filename with any amount of preceding directories which don't make it a fullname |       user/my_file.txt
         *      File |                 A wildcard encompassing any of the above. Must make sense in context. | ??????????????????????
 */
 
@@ -32,13 +32,13 @@
 #endif
 
 // Returns malloc'd string containing the filepath of the local data folder. This will be %appdata%\ on Windows, and $HOME/.local/share/ on Linux.
-extern char *cider_data_filepath();
+extern char *cider_data_filepath() __attribute__((malloc));
 
 // Returns malloc'd string containing the fullname of the current process.
-extern char *cider_exec_fullname();
+extern char *cider_exec_fullname() __attribute__((malloc));
 
 // Returns malloc'd string containing the filepath of the calling directory.
-extern char *cider_calling_filepath();
+extern char *cider_calling_filepath() __attribute__((malloc));
 
 // Returns the filepath extracted from a file. 'file' must be malloc'd. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file.
 extern char *cider_to_filepath(char *file);
