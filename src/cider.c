@@ -3,8 +3,6 @@
 #include "stdlib.h"
 #include "string.h"
 
-#include "stdio.h" // REMOVE
-
 #define CIDER_PLAT_WIN_INSERT(CONTENT)
 #define CIDER_PLAT_LIN_INSERT(CONTENT)
 
@@ -24,6 +22,7 @@
 
     #include "linux/limits.h" // For PATH_MAX
     #include "unistd.h" // For readlink(...)
+    #include "sys/stat.h" // For struct stat
 #endif
 
 char *cider_data_filepath()
@@ -66,7 +65,7 @@ char *cider_exec_fullname()
 }
 
 #if CIDER_PLATFORM != CIDER_PLAT_LIN
-    // TODO: Implement cider_calling_filepath for Windows etc
+    // IMPL_TODO: Implement cider_calling_filepath for Windows etc
     #error cider_calling_filepath() not yet implemented for platforms other than Linux.
 #endif
 char *cider_calling_filepath()
@@ -142,13 +141,31 @@ char *cider_construct_fullname(char *filepath, const char *filename)
 }
 
 #if CIDER_PLATFORM != CIDER_PLAT_LIN
-    // TODO: Implement cider_canonicalize_file for Windows etc
+    // IMPL_TODO
     #error cider_canonicalize_file() not yet implemented for platforms other than Linux.
 #endif
 char *cider_canonicalize_file(const char *file)
 {
-    // TODO: Make work for non-existent files
+    // MAJOR_TODO: Make work for non-existent files
     return realpath(file, NULL);
+}
+
+#if CIDER_PLATFORM != CIDER_PLAT_LIN
+    // IMPL_TODO
+    #error cider_creation_date_file() not yet implemented for platforms other than Linux.
+#endif
+uint32_t cider_creation_date_file(const char *file)
+{
+    struct stat file_attributes;
+
+    if (!stat(file, &file_attributes))
+    {
+        return file_attributes.st_ctim.tv_sec;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 #if !defined(cider_forward_slash_delims)
