@@ -57,8 +57,8 @@ extern char *cider_to_extension(char *file);
 // Returns a fullpath constructed from a provided filepath and filename. filepath must be malloc'd. Modifies in place, returns a possibly realloc'd pointer to filepath. Essentially a fancy strcat
 extern char *cider_construct_fullname(char *filepath, const char *filename);
 
-// Returns a canonical file from a provided file. Will NOT work with non-existent files
-extern char *cider_canonicalize_file(const char *file);
+// Returns malloc'd string containing canonical fullname of file. Not: Currently dies not work with non-existent files
+extern char *cider_canonicalize_file(const char *file) __attribute__((malloc));
 
 // Returns the creation date of file in UE-seconds
 extern uint32_t cider_creation_date_file(const char *file);
