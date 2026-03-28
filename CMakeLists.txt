@@ -9,10 +9,14 @@ if (NOT DEFINED LIB_TYPE)
 endif ()
 
 add_library(cider ${LIB_TYPE} src/cider.c)
+target_compile_definitions(cider PRIVATE CIDER_EXPORT)
 
 target_include_directories(cider PRIVATE include)
 
-add_subdirectory(tests)
+# Define BUILD_TESTS=1 to test output
+if (DEFINED BUILD_TESTS)
+    add_subdirectory(tests)
+endif ()
 
 install(TARGETS cider DESTINATION lib)
 install(FILES "${CMAKE_SOURCE_DIR}/include/cider.h" DESTINATION include)

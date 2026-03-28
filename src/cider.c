@@ -10,10 +10,9 @@
     #undef CIDER_PLAT_WIN_INSERT
     #define CIDER_PLAT_WIN_INSERT(CONTENT) CONTENT
 
-    #include "libloaderapi.h" // For GetModuleFileNameA(...)
+    #include "windows.h"
 
     #ifndef PATH_MAX
-        #include "minwindef.h" // Contains MAX_PATH
         #define PATH_MAX MAX_PATH
     #endif
 #elif CIDER_PLATFORM == CIDER_PLAT_LIN
@@ -44,7 +43,7 @@ char *cider_data_filepath()
     CIDER_PLAT_WIN_INSERT
     (
         data_filepath = strcpy(malloc(data_filepath_len + 2), data_filepath);
-        data_filepath[data_filepath_len] = CIDER_PATH_DELIM;
+        data_filepath[data_filepath_len] = CIDER_PATH_DELIM_C;
         data_filepath[data_filepath_len + 1] = 0;
     )
 
@@ -70,6 +69,8 @@ char *cider_exec_fullname()
 #endif
 char *cider_calling_filepath()
 {
+CIDER_PLAT_LIN_INSERT
+(
     char *calling_filepath = malloc(PATH_MAX);
     getcwd(calling_filepath, PATH_MAX);
 
@@ -77,10 +78,13 @@ char *cider_calling_filepath()
     const int calling_filepath_len = strlen(calling_filepath) + 1;
     calling_filepath = realloc(calling_filepath, calling_filepath_len + 1);
 
-    calling_filepath[calling_filepath_len - 1] = CIDER_PATH_DELIM;
+    calling_filepath[calling_filepath_len - 1] = CIDER_PATH_DELIM_C;
     calling_filepath[calling_filepath_len] = '\0';
 
     return calling_filepath;
+)
+
+    return NULL;
 }
 
 char *cider_to_filepath(char *file)
@@ -89,7 +93,7 @@ char *cider_to_filepath(char *file)
 
     for (int i = file_len - 1; i >= 0; --i)
     {
-        if (file[i] == CIDER_PATH_DELIM)
+        if (file[i] == CIDER_PATH_DELIM_C)
         {
             file[i + 1] = '\0';
             return realloc(file, i + 2);
@@ -105,7 +109,7 @@ char *cider_to_filename(char *file)
 
     for (int i = file_len - 1; i >= 0; --i)
     {
-        if (file[i] == CIDER_PATH_DELIM)
+        if (file[i] == CIDER_PATH_DELIM_C)
         {
             memmove(file, file + i + 1, file_len - i);
             return realloc(file, file_len - i);
@@ -122,7 +126,7 @@ char *cider_to_extension(char *file)
     for (int i = file_len - 1; i >= 0; --i)
     {
         // Delim found before '.', no extension
-        if (file[i] == CIDER_PATH_DELIM)
+        if (file[i] == CIDER_PATH_DELIM_C)
         {
             return NULL;
         }
@@ -146,8 +150,13 @@ char *cider_construct_fullname(char *filepath, const char *filename)
 #endif
 char *cider_canonicalize_file(const char *file)
 {
+CIDER_PLAT_LIN_INSERT
+(
     // MAJOR_TODO: Make work for non-existent files
     return realpath(file, NULL);
+)
+
+    return NULL;
 }
 
 #if CIDER_PLATFORM != CIDER_PLAT_LIN
@@ -156,16 +165,17 @@ char *cider_canonicalize_file(const char *file)
 #endif
 uint32_t cider_creation_date_file(const char *file)
 {
+CIDER_PLAT_LIN_INSERT
+(
     struct stat file_attributes;
 
     if (!stat(file, &file_attributes))
     {
         return file_attributes.st_ctim.tv_sec;
     }
-    else
-    {
-        return 0;
-    }
+)
+
+    return 0;
 }
 
 #if !defined(cider_forward_slash_delims)
@@ -173,7 +183,7 @@ uint32_t cider_creation_date_file(const char *file)
     {
         for (int i = 0; file[i]; ++i)
         {
-            if (file[i] == CIDER_PATH_DELIM)
+            if (file[i] == CIDER_PATH_DELIM_C)
             {
                 file[i] = '/';
             }
@@ -188,7 +198,7 @@ uint32_t cider_creation_date_file(const char *file)
     {
         for (int i = 0; file[i]; ++i)
         {
-            if (file[i] == CIDER_PATH_DELIM)
+            if (file[i] == CIDER_PATH_DELIM_C)
             {
                 file[i] = '\\';
             }

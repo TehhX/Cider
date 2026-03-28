@@ -8,8 +8,13 @@ add_executable(Cider-Tests
 )
 
 # Sanitize options
-target_compile_options(Cider-Tests PRIVATE "-fsanitize=address" "-fsanitize=undefined")
-   target_link_options(Cider-Tests PRIVATE "-fsanitize=address" "-fsanitize=undefined")
+if (CMAKE_C_COMPILER_ID STREQUAL GNU)
+    target_compile_options(Cider-Tests PRIVATE "-fsanitize=address" "-fsanitize=undefined")
+       target_link_options(Cider-Tests PRIVATE "-fsanitize=address" "-fsanitize=undefined")
+elseif (CMAKE_C_COMPILER_ID STREQUAL MSVC)
+    target_compile_options(Cider-Tests PRIVATE "/fsanitize=address" "/fsanitize=undefined")
+       target_link_options(Cider-Tests PRIVATE "/fsanitize=address" "/fsanitize=undefined")
+endif ()
 
 target_include_directories(Cider-Tests PRIVATE ../include/)
-target_link_libraries(Cider-Tests PRIVATE cider)
+     target_link_libraries(Cider-Tests PRIVATE cider)
