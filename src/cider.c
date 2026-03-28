@@ -2,6 +2,7 @@
 
 #include "stdlib.h"
 #include "string.h"
+#include "stdio.h" // REMOVE
 
 #define CIDER_PLAT_WIN_INSERT(CONTENT)
 #define CIDER_PLAT_LIN_INSERT(CONTENT)
@@ -71,8 +72,7 @@ char *cider_calling_filepath()
 {
 CIDER_PLAT_LIN_INSERT
 (
-    char *calling_filepath = malloc(PATH_MAX);
-    getcwd(calling_filepath, PATH_MAX);
+    char *calling_filepath = getcwd(NULL, 0);
 
     // Length of the filepath includes '/'. getcwd returns sans '/'
     const int calling_filepath_len = strlen(calling_filepath) + 1;
@@ -137,9 +137,11 @@ char *cider_to_extension(char *file)
             return realloc(file, file_len - i);
         }
     }
+
+    return NULL;
 }
 
-char *cider_construct_fullname(char *filepath, const char *filename)
+char *cider_construct_fullname(char *filepath, const char *const filename)
 {
     return strcat(realloc(filepath, strlen(filepath) + strlen(filename) + 2), filename);
 }
@@ -148,22 +150,67 @@ char *cider_construct_fullname(char *filepath, const char *filename)
     // IMPL_TODO
     #error cider_canonicalize_file() not yet implemented for platforms other than Linux.
 #endif
-char *cider_canonicalize_file(const char *file)
+char *cider_canonicalize_file(const char *const file)
 {
 CIDER_PLAT_LIN_INSERT
 (
-    // MAJOR_TODO: Make work for non-existent files
-    return realpath(file, NULL);
-)
+    char *current = strcpy(malloc(strlen(file) + 1), file);
+    char *rp_return;
 
-    return NULL;
+    size_t removed_elements_len = 0;
+    char **removed_elements = NULL;
+
+    while (!(rp_return = realpath(current, NULL)))
+    {
+        const size_t end_i = strlen(current);
+        size_t delim_i = end_i - 1;
+
+        for (; delim_i != SIZE_MAX && current[delim_i] != CIDER_PATH_DELIM_C; --delim_i);
+
+        if (delim_i == SIZE_MAX)
+        {
+            char *return_fullname = cider_construct_fullname(cider_calling_filepath(), current);
+
+            for (size_t rem_i = removed_elements_len - 1; rem_i != SIZE_MAX; --rem_i)
+            {
+                strcat((return_fullname = realloc(return_fullname, strlen(return_fullname) + strlen(removed_elements[rem_i]) + 1)), removed_elements[rem_i]);
+                free(removed_elements[rem_i]);
+            }
+
+            free(rp_return);
+            free(current);
+
+            free(removed_elements);
+
+            return return_fullname;
+        }
+
+        removed_elements = reallocarray(removed_elements, ++removed_elements_len, sizeof(char *));
+        strcpy((removed_elements[removed_elements_len - 1] = malloc(end_i - delim_i + 1)), current + delim_i)[end_i - delim_i] = '\0';
+
+        current[delim_i] = '\0';
+
+        free(rp_return);
+    }
+
+    for (size_t rem_i = removed_elements_len - 1; rem_i != SIZE_MAX; --rem_i)
+    {
+        strcat((rp_return = realloc(rp_return, strlen(rp_return) + strlen(removed_elements[rem_i]) + 1)), removed_elements[rem_i]);
+        free(removed_elements[rem_i]);
+    }
+
+    free(current);
+    free(removed_elements);
+
+    return rp_return;
+)
 }
 
 #if CIDER_PLATFORM != CIDER_PLAT_LIN
     // IMPL_TODO
     #error cider_creation_date_file() not yet implemented for platforms other than Linux.
 #endif
-uint32_t cider_creation_date_file(const char *file)
+uint32_t cider_creation_date_file(const char *const file)
 {
 CIDER_PLAT_LIN_INSERT
 (
@@ -176,6 +223,19 @@ CIDER_PLAT_LIN_INSERT
 )
 
     return 0;
+}
+
+char *cider_reset_delims(char *path, const char to_reset)
+{
+    for (int i = 0; path[i] != '\0'; ++i)
+    {
+        if (path[i] == to_reset)
+        {
+            path[i] = CIDER_PATH_DELIM_C;
+        }
+    }
+
+    return path;
 }
 
 #if !defined(cider_forward_slash_delims)

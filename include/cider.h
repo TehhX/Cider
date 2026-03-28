@@ -55,32 +55,90 @@
 
 #include "stdint.h"
 
-// Returns malloc'd string containing the filepath of the local data folder. This will be %appdata%\ on Windows, and $HOME/.local/share/ on Linux
+// @brief Returns malloc'd string containing the filepath of the local data folder. This will be %appdata%\ on Windows, and $HOME/.local/share/ on Linux
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_data_filepath();
 
-// Returns malloc'd string containing the fullname of the current process
+// @brief Returns malloc'd string containing the fullname of the current process
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_exec_fullname();
 
-// Returns malloc'd string containing the filepath of the calling directory
+// @brief Returns malloc'd string containing the filepath of the calling directory
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_calling_filepath();
 
-// Returns the filepath extracted from a file. 'file' must be malloc'd. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file
+/*
+    @brief Returns filepath extracted from `file`. Modifies in place
+
+        @param file The file from which to extract a filepath
+
+        @returns Possibly reallocated `file` or NULL if error/filepath does not exist in `file`
+
+        @warning `file` MUST be malloc'd
+        @warning `file` path delimiters MUST be system default
+*/
 CIDER_EXTERN char *cider_to_filepath(char *file);
 
-// Returns the filename extracted from file. 'file' must be malloc'd. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file
+/*
+    @brief Returns the filename extracted from `file`. Modifies in place
+
+        @param file The file from which to extract a filename
+
+        @returns Possibly reallocated `file` now containing the filepath, or NULL if error/filename does not exist in `file`
+
+        @warning `file` MUST be malloc'd
+        @warning `file` path delimiters MUST be system default
+*/
 CIDER_EXTERN char *cider_to_filename(char *file);
 
-// Returns the extension extracted from file. 'file' must be malloc'd. Delims must be system default. Modifies in place, returns a possibly realloc'd pointer to file. Returns NULL if one does not exist in file
+/*
+    @brief Returns the extension extracted from `file`. Modifies in place
+
+        @param file The file from which to extract an extension
+
+        @returns Possibly reallocated `file` now containing the filename, or NULL if error/extension does not exist in `file`
+
+        @warning `file` MUST be malloc'd
+        @warning `file` path delimiters MUST be system default
+*/
 CIDER_EXTERN char *cider_to_extension(char *file);
 
-// Returns a fullpath constructed from a provided filepath and filename. filepath must be malloc'd. Modifies in place, returns a possibly realloc'd pointer to filepath. Essentially a fancy strcat
+/*
+    @brief Returns a fullpath constructed from a provided filepath and filename. Modifies in place
+
+        @param filepath The filepath onto which `filename` will be appended
+        @param filename The filename to append to `filepath`
+
+        @returns Reallocated `filepath` now containing the fullname
+
+        @warning `filepath` MUST be malloc'd
+
+        @note Essentially a fancy strcat
+*/
 CIDER_EXTERN char *cider_construct_fullname(char *filepath, const char *filename);
 
-// Returns malloc'd string containing canonical fullname of file. Not: Currently dies not work with non-existent files
+/*
+    @brief Returns malloc'd string containing canonical fullname of file
+
+        @param file The file to canonicalize
+
+        @returns Malloc'd canonical fullname of `file`
+
+        @warning May still be bugs to iron out on Linux
+*/
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_canonicalize_file(const char *file);
 
-// Returns the creation date of file in UE-seconds
+// @brief Returns the creation date of file in UE-seconds
 CIDER_EXTERN uint32_t cider_creation_date_file(const char *file);
+
+/*
+    @brief Resets all occurrences of `to_reset` in `path` to default path delimiter. Modifies in place
+
+        @param path The path to replace delimiters of
+        @param to_reset The character to replace instances of
+
+        @returns Modified `path`
+
+        @warning This will replace all occurrences of `to_reset`, even those you may not want replaced
+*/
+CIDER_EXTERN char *cider_reset_delims(char *path, char to_reset);
 
 #if CIDER_PATH_DELIM_C != '/'
     // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system uses forward-slash delimiters, so no action is taken
