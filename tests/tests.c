@@ -147,6 +147,11 @@ int main()
         fputs("This is a testing file.\n", test_file);
     }
 
+    if (fclose(test_file))
+    {
+        goto SYSTEM_FAIL;
+    }
+
     test_data_filepath();
 
     test_exec_fullname();
@@ -172,11 +177,6 @@ int main()
     test_creation_date_file();
 
     test_reset_delims();
-
-    if (fclose(test_file))
-    {
-        goto SYSTEM_FAIL;
-    }
 
     return 0;
     SYSTEM_FAIL:

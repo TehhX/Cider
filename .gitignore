@@ -1,6 +1,7 @@
 # Visual Studio Folders
 /.vscode/
 /.vs/
+/out/
 
 # Ignored files
 *_IGN*

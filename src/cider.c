@@ -2,7 +2,6 @@
 
 #include "stdlib.h"
 #include "string.h"
-#include "stdio.h" // REMOVE
 
 #define CIDER_PLAT_WIN_INSERT(CONTENT)
 #define CIDER_PLAT_LIN_INSERT(CONTENT)
@@ -64,27 +63,27 @@ char *cider_exec_fullname()
     return realloc(exec_fullname, exec_fullname_len);
 }
 
-#if CIDER_PLATFORM != CIDER_PLAT_LIN
-    // IMPL_TODO: Implement cider_calling_filepath for Windows etc
-    #error cider_calling_filepath() not yet implemented for platforms other than Linux.
-#endif
 char *cider_calling_filepath()
 {
-CIDER_PLAT_LIN_INSERT
-(
-    char *calling_filepath = getcwd(NULL, 0);
+    char* calling_filepath =
+        CIDER_PLAT_LIN_INSERT(getcwd(NULL, 0);)
+        CIDER_PLAT_WIN_INSERT(malloc(PATH_MAX);)
+    ;
 
     // Length of the filepath includes '/'. getcwd returns sans '/'
-    const int calling_filepath_len = strlen(calling_filepath) + 1;
+    CIDER_PLAT_WIN_INSERT
+    (
+        const int calling_filepath_len = GetCurrentDirectoryA(PATH_MAX, calling_filepath) + 1;
+        calling_filepath = realloc(calling_filepath, calling_filepath_len);
+    )
+
+    CIDER_PLAT_LIN_INSERT(const int calling_filepath_len = strlen(calling_filepath) + 1);
     calling_filepath = realloc(calling_filepath, calling_filepath_len + 1);
 
     calling_filepath[calling_filepath_len - 1] = CIDER_PATH_DELIM_C;
     calling_filepath[calling_filepath_len] = '\0';
 
     return calling_filepath;
-)
-
-    return NULL;
 }
 
 char *cider_to_filepath(char *file)
@@ -146,10 +145,6 @@ char *cider_construct_fullname(char *filepath, const char *const filename)
     return strcat(realloc(filepath, strlen(filepath) + strlen(filename) + 2), filename);
 }
 
-#if CIDER_PLATFORM != CIDER_PLAT_LIN
-    // IMPL_TODO
-    #error cider_canonicalize_file() not yet implemented for platforms other than Linux.
-#endif
 char *cider_canonicalize_file(const char *const file)
 {
 CIDER_PLAT_LIN_INSERT
@@ -204,12 +199,15 @@ CIDER_PLAT_LIN_INSERT
 
     return rp_return;
 )
+
+CIDER_PLAT_WIN_INSERT
+(
+    return _fullpath(NULL, file, PATH_MAX);
+)
+
+    return NULL;
 }
 
-#if CIDER_PLATFORM != CIDER_PLAT_LIN
-    // IMPL_TODO
-    #error cider_creation_date_file() not yet implemented for platforms other than Linux.
-#endif
 uint32_t cider_creation_date_file(const char *const file)
 {
 CIDER_PLAT_LIN_INSERT
@@ -221,6 +219,30 @@ CIDER_PLAT_LIN_INSERT
         return file_attributes.st_ctim.tv_sec;
     }
 )
+
+#if CIDER_PLATFORM == CIDER_PLAT_WIN
+    HANDLE file_handle = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+    if (file_handle == INVALID_HANDLE_VALUE)
+    {
+        return 0;
+    }
+
+    FILETIME creation_filetime;
+
+    if (!GetFileTime(file_handle, &creation_filetime, NULL, NULL))
+    {
+        printf("wow2\n");
+        return 0;
+    }
+
+    LARGE_INTEGER storage =
+    {
+        .LowPart = creation_filetime.dwLowDateTime,
+        .HighPart = creation_filetime.dwHighDateTime
+    };
+
+    return (storage.QuadPart - 0x019DB1DED53E8000) / 10000000;
+#endif // CIDER_PLATFORM == CIDER_PLAT_WIN
 
     return 0;
 }

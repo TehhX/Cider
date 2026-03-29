@@ -125,7 +125,15 @@ CIDER_EXTERN char *cider_construct_fullname(char *filepath, const char *filename
 */
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_canonicalize_file(const char *file);
 
-// @brief Returns the creation date of file in UE-seconds
+/*
+    @brief Returns the creation date of file in UE-seconds
+
+        @param file The file to check
+
+        @returns The creation date of `file` in UE-seconds
+
+        @warning Not well tested on Windows
+*/
 CIDER_EXTERN uint32_t cider_creation_date_file(const char *file);
 
 /*
