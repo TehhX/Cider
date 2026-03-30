@@ -231,7 +231,6 @@ CIDER_PLAT_LIN_INSERT
 
     if (!GetFileTime(file_handle, &creation_filetime, NULL, NULL))
     {
-        printf("wow2\n");
         return 0;
     }
 
