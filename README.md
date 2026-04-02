@@ -4,7 +4,7 @@ A small library containing some path and directory manipulation tools written in
 
 ## Tests
 
-Contains any test-related files to verify if Cider is functioning properly. Is built alongside the library.
+Contains any test-related files to verify if Cider is functioning properly. Will only be built when BUILD_TESTS=1 is passed as a CMake configure argument.
 
 ## Library Type
 
