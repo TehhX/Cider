@@ -11,7 +11,7 @@
 #ifdef __GNUC__
     #define DEFINE_TEST_FUNC __attribute__((always_inline)) static inline void
 #elif defined(_MSC_VER)
-    #define DEFINE_TEST_FUNC __forceinline static inline void
+    #define DEFINE_TEST_FUNC __forceinline static void
 #else
     #error "Unknown compiler."
 #endif
