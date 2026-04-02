@@ -4,11 +4,11 @@ A small library containing some path and directory manipulation tools written in
 
 ## Tests
 
-Contains any test-related files to verify if Cider is functioning properly. Is build alongside the library.
+Contains any test-related files to verify if Cider is functioning properly. Is built alongside the library.
 
 ## Library Type
 
-Configure CMake with -DLIB_TYPE=\<type> where \<type> is SHARED or STATIC to change type. Don't provide LIB_TYPE to use default.
+Configure CMake with -DLIB_TYPE=\<type> where \<type> is SHARED or STATIC to change type. Don't provide LIB_TYPE to use default (SHARED).
 
 ## Installing
 
