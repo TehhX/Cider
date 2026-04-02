@@ -2,7 +2,7 @@
 #define CIDER_H
 
 /*
-    Cider v2.2.0 - A small library for path, directory and filename manipulation. Contains various cross-platform utilities in the same realm
+    Cider v3.0.0 - A small library for path, directory and filename manipulation. Contains various cross-platform utilities in the same realm
         * Supported OS's:
             *   Linux |                             Tested each commit on Arch x64
             * Windows | Rarely tested, sometimes functions are left un-implemented
