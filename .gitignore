@@ -6,5 +6,6 @@
 # Ignored files
 *_IGN*
 
-# Build folder
+# Build folders
 /build/
+/build-ming/
