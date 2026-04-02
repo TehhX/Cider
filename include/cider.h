@@ -55,13 +55,25 @@
 
 #include "stdint.h"
 
-// @brief Returns malloc'd string containing the filepath of the local data folder. This will be %appdata%\ on Windows, and $HOME/.local/share/ on Linux
+/*
+    @brief Returns filepath of the local data folder. This will be %appdata%\ on Windows, and $HOME/.local/share/ on Linux
+
+        @returns Malloc'd string
+*/
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_data_filepath();
 
-// @brief Returns malloc'd string containing the fullname of the current process
+/*
+    @brief Returns fullname of the current process
+
+        @returns Malloc'd string
+*/
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_exec_fullname();
 
-// @brief Returns malloc'd string containing the filepath of the calling directory
+/*
+    @brief Returns filepath of the calling directory
+
+        @returns Malloc'd string
+*/
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_calling_filepath();
 
 /*
@@ -147,6 +159,13 @@ CIDER_EXTERN uint32_t cider_creation_date_file(const char *file);
         @warning This will replace all occurrences of `to_reset`, even those you may not want replaced
 */
 CIDER_EXTERN char *cider_reset_delims(char *path, char to_reset);
+
+/*
+    @brief Returns filepath of temporary folder
+
+        @returns Malloc'd string with tmp filepath
+*/
+CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_temp_filepath();
 
 #if CIDER_PATH_DELIM_C != '/'
     // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system uses forward-slash delimiters, so no action is taken

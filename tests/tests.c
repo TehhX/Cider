@@ -9,9 +9,9 @@
 #define STR_DEF_TO_HEAP(STR) (strcpy(malloc(sizeof(STR)), STR))
 
 #ifdef __GNUC__
-    #define DEFINE_TEST_FUNC static inline __attribute__((always_inline)) void
+    #define DEFINE_TEST_FUNC __attribute__((always_inline)) static inline void
 #elif defined(_MSC_VER)
-    #define DEFINE_TEST_FUNC static inline void
+    #define DEFINE_TEST_FUNC __forceinline static inline void
 #else
     #error "Unknown compiler."
 #endif
@@ -134,6 +134,15 @@ DEFINE_TEST_FUNC test_reset_delims()
     printf("          %*.sReset BSlash: \"%s\"\n", REAL_FILENAME_INDENT, backwards);
 }
 
+DEFINE_TEST_FUNC test_temp_filepath()
+{
+    char *temp_filepath = cider_temp_filepath();
+
+    printf("    %*.sTemporary filepath: \"%s\"\n", REAL_FILENAME_INDENT, temp_filepath);
+
+    free(temp_filepath);
+}
+
 int main()
 {
     // Some functions require a test file
@@ -177,6 +186,8 @@ int main()
     test_creation_date_file();
 
     test_reset_delims();
+
+    test_temp_filepath();
 
     return 0;
     SYSTEM_FAIL:

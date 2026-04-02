@@ -259,6 +259,22 @@ char *cider_reset_delims(char *path, const char to_reset)
     return path;
 }
 
+char *cider_temp_filepath()
+{
+    CIDER_PLAT_LIN_INSERT(return strcpy(malloc(sizeof("/tmp/") + 1), "/tmp/"));
+
+    CIDER_PLAT_WIN_INSERT
+    (
+        char *temp_filepath = malloc(PATH_MAX);
+        const size_t temp_filepath_len = GetTempPathA(PATH_MAX, temp_filepath);
+
+        temp_filepath = realloc(temp_filepath, temp_filepath_len + 1);
+        temp_filepath[temp_filepath_len] = '\0';
+
+        return temp_filepath;
+    )
+}
+
 #if !defined(cider_forward_slash_delims)
     char *cider_forward_slash_delims(char *const file)
     {
