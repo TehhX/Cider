@@ -7,3 +7,7 @@ Everyone is welcome to contribute their own code, issues, comments etc. However,
 * Windows: Tested sporadically, only have it installed in a VM.
 * Linux: Linux is tested with every commit by [myself](https://github.com/TehhX)
 * Mac: No implementation exists for Mac or Apple OS's, but would be appreciated. I will never test Mac implementations myself.
+
+## Artificial Intelligence
+
+AI generated code, issues, PRs, etc. are not welcome in this repository in any form.
