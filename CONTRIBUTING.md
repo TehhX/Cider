@@ -1,6 +1,6 @@
 # Contributing
 
-Everyone is welcome to contribute their own code, issues, comments etc.
+Everyone is welcome to contribute their own code, issues, comments etc. However, I will request contributors ask for assignment to any issue(s) they wish to tackle.
 
 ## Platforms
 
