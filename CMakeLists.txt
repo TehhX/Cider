@@ -12,8 +12,11 @@ if (NOT DEFINED LIB_TYPE)
 endif ()
 
 # Integral enum LIB_TYPE for definitions
-target_compile_definitions(cider PRIVATE LIB_TYPE_STATIC=0)
-target_compile_definitions(cider PRIVATE LIB_TYPE_SHARED=1)
+set(LIB_TYPE_SHARED 0)
+set(LIB_TYPE_STATIC 1)
+
+target_compile_definitions(cider PRIVATE LIB_TYPE_STATIC=${LIB_TYPE_STATIC})
+target_compile_definitions(cider PRIVATE LIB_TYPE_SHARED=${LIB_TYPE_SHARED})
 
 if (LIB_TYPE STREQUAL "SHARED")
     target_compile_definitions(cider PRIVATE LIB_TYPE=${LIB_TYPE_SHARED})
