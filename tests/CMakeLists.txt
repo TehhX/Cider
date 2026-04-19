@@ -10,5 +10,4 @@ add_executable(Cider-Tests
 set(CLOPT_PROJ Cider-Tests)
 include("../Compiler_Linker_Opts.cmake")
 
-target_include_directories(Cider-Tests PRIVATE ../include/)
-     target_link_libraries(Cider-Tests PRIVATE cider)
+target_link_libraries(Cider-Tests PRIVATE cider)

@@ -29,10 +29,10 @@ endif ()
 set(CLOPT_PROJ cider)
 include("Compiler_Linker_Opts.cmake")
 
-target_include_directories(cider PRIVATE include)
+target_include_directories(cider PUBLIC "include/")
 
 # Define BUILD_TESTS=1 to test output
-if (DEFINED BUILD_TESTS)
+if (BUILD_TESTS EQUAL 1)
     add_subdirectory(tests)
 endif ()
 
