@@ -3,14 +3,25 @@ project(cider LANGUAGES C VERSION 3.0.0)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED true)
 
-# Provide LIB_TYPE when configuring or it will be SHARED
-if (NOT DEFINED LIB_TYPE)
-    set(LIB_TYPE SHARED)
-endif ()
-
 add_library(cider ${LIB_TYPE} src/cider.c)
 target_compile_definitions(cider PRIVATE CIDER_EXPORT)
-target_compile_definitions(cider PRIVATE LIB_TYPE=${LIB_TYPE})
+
+# Provide LIB_TYPE when configuring or it will be SHARED
+if (NOT DEFINED LIB_TYPE)
+    set(LIB_TYPE "SHARED")
+endif ()
+
+# Integral enum LIB_TYPE for definitions
+target_compile_definitions(cider PRIVATE LIB_TYPE_STATIC=0)
+target_compile_definitions(cider PRIVATE LIB_TYPE_SHARED=1)
+
+if (LIB_TYPE STREQUAL "SHARED")
+    target_compile_definitions(cider PRIVATE LIB_TYPE=${LIB_TYPE_SHARED})
+elseif (LIB_TYPE STREQUAL "STATIC")
+    target_compile_definitions(cider PRIVATE LIB_TYPE=${LIB_TYPE_STATIC})
+else ()
+    message(FATAL_ERROR "Provided LIB_TYPE invalid.")
+endif ()
 
 set(CLOPT_PROJ cider)
 include("Compiler_Linker_Opts.cmake")
