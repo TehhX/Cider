@@ -44,10 +44,14 @@
 #elif defined(_MSC_VER)
     #define CIDER_ATTR_MALLOC __declspec(noalias) __declspec(restrict)
 
-    #ifdef CIDER_EXPORT
-        #define CIDER_EXTERN __declspec(dllexport)
-    #else
-        #define CIDER_EXTERN __declspec(dllimport)
+    #if LIB_TYPE == "SHARED"
+        #ifdef CIDER_EXPORT
+            #define CIDER_EXTERN __declspec(dllexport)
+        #else
+            #define CIDER_EXTERN __declspec(dllimport)
+        #endif
+    #elif LIB_TYPE == "STATIC"
+        #define CIDER_EXPORT extern
     #endif
 #else
     #error "Unknown compiler."

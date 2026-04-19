@@ -10,6 +10,7 @@ endif ()
 
 add_library(cider ${LIB_TYPE} src/cider.c)
 target_compile_definitions(cider PRIVATE CIDER_EXPORT)
+target_compile_definitions(cider PRIVATE LIB_TYPE=${LIB_TYPE})
 
 set(CLOPT_PROJ cider)
 include("Compiler_Linker_Opts.cmake")
