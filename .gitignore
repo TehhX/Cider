@@ -9,3 +9,6 @@
 # Build folders
 /build/
 /build-ming/
+
+# Generated files
+/version.txt
