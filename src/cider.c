@@ -208,36 +208,33 @@ CIDER_PLAT_WIN_INSERT
     return NULL;
 }
 
-uint32_t cider_creation_date_file(const char *const file)
+uint32_t cider_modification_date_file(const char *const file)
 {
-CIDER_PLAT_LIN_INSERT
-(
+#if CIDER_PLATFORM == CIDER_PLAT_LIN
     struct stat file_attributes;
 
     if (!stat(file, &file_attributes))
     {
-        return file_attributes.st_ctim.tv_sec;
+        return file_attributes.st_mtime;
     }
-)
-
-#if CIDER_PLATFORM == CIDER_PLAT_WIN
+#elif CIDER_PLATFORM == CIDER_PLAT_WIN
     HANDLE file_handle = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
     if (file_handle == INVALID_HANDLE_VALUE)
     {
         return 0;
     }
 
-    FILETIME creation_filetime;
+    FILETIME modification_filetime;
 
-    if (!GetFileTime(file_handle, &creation_filetime, NULL, NULL))
+    if (!GetFileTime(file_handle, NULL, NULL, &modification_filetime))
     {
         return 0;
     }
 
     LARGE_INTEGER storage =
     {
-        .LowPart = creation_filetime.dwLowDateTime,
-        .HighPart = creation_filetime.dwHighDateTime
+        .LowPart = modification_filetime.dwLowDateTime,
+        .HighPart = modification_filetime.dwHighDateTime
     };
 
     return (storage.QuadPart - 0x019DB1DED53E8000) / 10000000;

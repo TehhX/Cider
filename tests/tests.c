@@ -120,9 +120,9 @@ DEFINE_TEST_FUNC test_canonicalize_fake_file()
     free(canonicalized_fullname);
 }
 
-DEFINE_TEST_FUNC test_creation_date_file()
+DEFINE_TEST_FUNC test_modification_date_file()
 {
-    printf("Creation E-seconds of " REAL_FILENAME ": %" PRIu32 "\n", cider_creation_date_file(REAL_FILENAME));
+    printf("Creation E-seconds of " REAL_FILENAME ": %" PRIu32 "\n", cider_modification_date_file(REAL_FILENAME));
 }
 
 DEFINE_TEST_FUNC test_reset_delims()
@@ -183,7 +183,7 @@ int main()
 
     test_canonicalize_fake_file();
 
-    test_creation_date_file();
+    test_modification_date_file();
 
     test_reset_delims();
 
@@ -192,6 +192,6 @@ int main()
     return 0;
     SYSTEM_FAIL:
 
-    perror("System fail during test_creation_date_file()");
+    perror("System fail during test_modification_date_file()");
     return 1;
 }
