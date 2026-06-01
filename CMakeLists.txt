@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(cider LANGUAGES C VERSION 4.0.0)
+project(cider LANGUAGES C VERSION 4.1.0 HOMEPAGE_URL "https://github.com/TehhX/Cider")
 file(WRITE "${CMAKE_SOURCE_DIR}/version.txt" "${PROJECT_VERSION_MAJOR}-${PROJECT_VERSION_MINOR}-${PROJECT_VERSION_PATCH}")
 
 set(CMAKE_C_STANDARD 17)
@@ -17,19 +17,18 @@ endif ()
 set(LIB_TYPE_SHARED 0)
 set(LIB_TYPE_STATIC 1)
 
-target_compile_definitions(cider PRIVATE LIB_TYPE_STATIC=${LIB_TYPE_STATIC})
-target_compile_definitions(cider PRIVATE LIB_TYPE_SHARED=${LIB_TYPE_SHARED})
-
 if (LIB_TYPE STREQUAL "SHARED")
     target_compile_definitions(cider PRIVATE LIB_TYPE=${LIB_TYPE_SHARED})
 elseif (LIB_TYPE STREQUAL "STATIC")
     target_compile_definitions(cider PRIVATE LIB_TYPE=${LIB_TYPE_STATIC})
 else ()
-    message(FATAL_ERROR "Provided LIB_TYPE invalid.")
+    message(FATAL_ERROR "Provided LIB_TYPE invalid, pass one of [SHARED|STATIC].")
 endif ()
 
-set(CLOPT_PROJ cider)
-include("Compiler_Linker_Opts.cmake")
+target_compile_definitions(cider PRIVATE LIB_TYPE_STATIC=${LIB_TYPE_STATIC})
+target_compile_definitions(cider PRIVATE LIB_TYPE_SHARED=${LIB_TYPE_SHARED})
+
+include("${CMAKE_SOURCE_DIR}/Compiler_Linker_Opts.cmake")
 
 target_include_directories(cider PUBLIC "include/")
 

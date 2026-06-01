@@ -7,7 +7,6 @@ add_executable(Cider-Tests
     tests.c
 )
 
-set(CLOPT_PROJ Cider-Tests)
-include("../Compiler_Linker_Opts.cmake")
+include("${CMAKE_SOURCE_DIR}/Compiler_Linker_Opts.cmake")
 
 target_link_libraries(Cider-Tests PRIVATE cider)

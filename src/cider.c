@@ -3,26 +3,29 @@
 #include "stdlib.h"
 #include "string.h"
 
-#define CIDER_PLAT_WIN_INSERT(CONTENT)
-#define CIDER_PLAT_LIN_INSERT(CONTENT)
+#define CIDER_PLAT_WIN_INSERT(...)
+#define CIDER_PLAT_LIN_INSERT(...)
 
 #if CIDER_PLATFORM == CIDER_PLAT_WIN
     #undef CIDER_PLAT_WIN_INSERT
-    #define CIDER_PLAT_WIN_INSERT(CONTENT) CONTENT
+    #define CIDER_PLAT_WIN_INSERT(...) __VA_ARGS__
 
-    #include "windows.h"
+    #include "windows.h" // For all win32 functionality, defs, macros etc
 
     #ifndef PATH_MAX
         #define PATH_MAX MAX_PATH
     #endif
 #elif CIDER_PLATFORM == CIDER_PLAT_LIN
     #undef CIDER_PLAT_LIN_INSERT
-    #define CIDER_PLAT_LIN_INSERT(CONTENT) CONTENT
+    #define CIDER_PLAT_LIN_INSERT(...) __VA_ARGS__
 
     #include "linux/limits.h" // For PATH_MAX
     #include "unistd.h" // For readlink(...)
     #include "sys/stat.h" // For struct stat
 #endif
+
+// A proper reallocating function
+#define PREALLOC(PTR, LEN) PTR = realloc(PTR, sizeof(*(PTR)) * (LEN))
 
 char *cider_data_filepath()
 {
@@ -33,19 +36,15 @@ char *cider_data_filepath()
 
     const int data_filepath_len = strlen(data_filepath);
 
-    CIDER_PLAT_LIN_INSERT
-    (
+    #if CIDER_PLATFORM == CIDER_PLAT_LIN
         const char local_share[] = "/.local/share/";
         data_filepath = memcpy(malloc(data_filepath_len + sizeof(local_share)), data_filepath, data_filepath_len);
         memcpy(data_filepath + data_filepath_len, local_share, sizeof(local_share));
-    )
-
-    CIDER_PLAT_WIN_INSERT
-    (
+    #elif CIDER_PLATFORM == CIDER_PLAT_WIN
         data_filepath = strcpy(malloc(data_filepath_len + 2), data_filepath);
         data_filepath[data_filepath_len] = CIDER_PATH_DELIM_C;
         data_filepath[data_filepath_len + 1] = 0;
-    )
+    #endif
 
     return data_filepath;
 }
@@ -71,14 +70,14 @@ char *cider_calling_filepath()
     ;
 
     // Length of the filepath includes '/'. getcwd returns sans '/'
-    CIDER_PLAT_WIN_INSERT
-    (
+    #if CIDER_PLATFORM == CIDER_PLAT_WIN
         const int calling_filepath_len = GetCurrentDirectoryA(PATH_MAX, calling_filepath) + 1;
-        calling_filepath = realloc(calling_filepath, calling_filepath_len);
-    )
+        PREALLOC(calling_filepath, calling_filepath_len);
+    #elif CIDER_PLATFORM == CIDER_PLAT_LIN
+        const int calling_filepath_len = strlen(calling_filepath) + 1;
+    #endif
 
-    CIDER_PLAT_LIN_INSERT(const int calling_filepath_len = strlen(calling_filepath) + 1);
-    calling_filepath = realloc(calling_filepath, calling_filepath_len + 1);
+    PREALLOC(calling_filepath, calling_filepath_len + 1);
 
     calling_filepath[calling_filepath_len - 1] = CIDER_PATH_DELIM_C;
     calling_filepath[calling_filepath_len] = '\0';
@@ -147,98 +146,94 @@ char *cider_construct_fullname(char *filepath, const char *const filename)
 
 char *cider_canonicalize_file(const char *const file)
 {
-CIDER_PLAT_LIN_INSERT
-(
-    char *current = strcpy(malloc(strlen(file) + 1), file);
-    char *rp_return;
+    #if CIDER_PLATFORM == CIDER_PLAT_LIN
+        char *current = strcpy(malloc(strlen(file) + 1), file);
+        char *rp_return;
 
-    size_t removed_elements_len = 0;
-    char **removed_elements = NULL;
+        size_t removed_elements_len = 0;
+        char **removed_elements = NULL;
 
-    while (!(rp_return = realpath(current, NULL)))
-    {
-        const size_t end_i = strlen(current);
-        size_t delim_i = end_i - 1;
-
-        for (; delim_i != SIZE_MAX && current[delim_i] != CIDER_PATH_DELIM_C; --delim_i);
-
-        if (delim_i == SIZE_MAX)
+        while (!(rp_return = realpath(current, NULL)))
         {
-            char *return_fullname = cider_construct_fullname(cider_calling_filepath(), current);
+            const size_t end_i = strlen(current);
+            size_t delim_i = end_i - 1;
 
-            for (size_t rem_i = removed_elements_len - 1; rem_i != SIZE_MAX; --rem_i)
+            for (; delim_i != SIZE_MAX && current[delim_i] != CIDER_PATH_DELIM_C; --delim_i);
+
+            if (delim_i == SIZE_MAX)
             {
-                strcat((return_fullname = realloc(return_fullname, strlen(return_fullname) + strlen(removed_elements[rem_i]) + 1)), removed_elements[rem_i]);
-                free(removed_elements[rem_i]);
+                char *return_fullname = cider_construct_fullname(cider_calling_filepath(), current);
+
+                for (size_t rem_i = removed_elements_len - 1; rem_i != SIZE_MAX; --rem_i)
+                {
+                    strcat(PREALLOC(return_fullname, strlen(return_fullname) + strlen(removed_elements[rem_i]) + 1), removed_elements[rem_i]);
+                    free(removed_elements[rem_i]);
+                }
+
+                free(rp_return);
+                free(current);
+
+                free(removed_elements);
+
+                return return_fullname;
             }
 
+            PREALLOC(removed_elements, ++removed_elements_len);
+            strcpy((removed_elements[removed_elements_len - 1] = malloc(end_i - delim_i + 1)), current + delim_i)[end_i - delim_i] = '\0';
+
+            current[delim_i] = '\0';
+
             free(rp_return);
-            free(current);
-
-            free(removed_elements);
-
-            return return_fullname;
         }
 
-        removed_elements = reallocarray(removed_elements, ++removed_elements_len, sizeof(char *));
-        strcpy((removed_elements[removed_elements_len - 1] = malloc(end_i - delim_i + 1)), current + delim_i)[end_i - delim_i] = '\0';
+        for (size_t rem_i = removed_elements_len - 1; rem_i != SIZE_MAX; --rem_i)
+        {
+            strcat(PREALLOC(rp_return, strlen(rp_return) + strlen(removed_elements[rem_i]) + 1), removed_elements[rem_i]);
+            free(removed_elements[rem_i]);
+        }
 
-        current[delim_i] = '\0';
+        free(current);
+        free(removed_elements);
 
-        free(rp_return);
-    }
-
-    for (size_t rem_i = removed_elements_len - 1; rem_i != SIZE_MAX; --rem_i)
-    {
-        strcat((rp_return = realloc(rp_return, strlen(rp_return) + strlen(removed_elements[rem_i]) + 1)), removed_elements[rem_i]);
-        free(removed_elements[rem_i]);
-    }
-
-    free(current);
-    free(removed_elements);
-
-    return rp_return;
-)
-
-CIDER_PLAT_WIN_INSERT
-(
-    return _fullpath(NULL, file, PATH_MAX);
-)
+        return rp_return;
+    #elif CIDER_PLATFORM == CIDER_PLAT_WIN
+        return _fullpath(NULL, file, PATH_MAX);
+    #endif
 
     return NULL;
 }
 
 uint32_t cider_modification_date_file(const char *const file)
 {
-#if CIDER_PLATFORM == CIDER_PLAT_LIN
-    struct stat file_attributes;
+    #if CIDER_PLATFORM == CIDER_PLAT_LIN
+        struct stat file_attributes;
 
-    if (!stat(file, &file_attributes))
-    {
-        return file_attributes.st_mtime;
-    }
-#elif CIDER_PLATFORM == CIDER_PLAT_WIN
-    HANDLE file_handle = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-    if (file_handle == INVALID_HANDLE_VALUE)
-    {
-        return 0;
-    }
+        if (!stat(file, &file_attributes))
+        {
+            return file_attributes.st_mtime;
+        }
+    #elif CIDER_PLATFORM == CIDER_PLAT_WIN
+        HANDLE file_handle = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+        if (file_handle == INVALID_HANDLE_VALUE)
+        {
+            return 0;
+        }
 
-    FILETIME modification_filetime;
+        FILETIME modification_filetime;
 
-    if (!GetFileTime(file_handle, NULL, NULL, &modification_filetime))
-    {
-        return 0;
-    }
+        if (!GetFileTime(file_handle, NULL, NULL, &modification_filetime))
+        {
+            return 0;
+        }
 
-    LARGE_INTEGER storage =
-    {
-        .LowPart = modification_filetime.dwLowDateTime,
-        .HighPart = modification_filetime.dwHighDateTime
-    };
+        LARGE_INTEGER storage =
+        {
+            .LowPart = modification_filetime.dwLowDateTime,
+            .HighPart = modification_filetime.dwHighDateTime
+        };
 
-    return (storage.QuadPart - 0x019DB1DED53E8000) / 10000000;
-#endif // CIDER_PLATFORM == CIDER_PLAT_WIN
+        return (storage.QuadPart - 0x019DB1DED53E8000) / 10000000;
+    #endif
 
     return 0;
 }
@@ -258,10 +253,9 @@ char *cider_reset_delims(char *path, const char to_reset)
 
 char *cider_temp_filepath()
 {
-    CIDER_PLAT_LIN_INSERT(return strcpy(malloc(sizeof("/tmp/") + 1), "/tmp/"));
-
-    CIDER_PLAT_WIN_INSERT
-    (
+    #if CIDER_PLATFORM == CIDER_PLAT_LIN
+        return strcpy(malloc(sizeof("/tmp/") + 1), "/tmp/");
+    #elif CIDER_PLATFORM == CIDER_PLAT_WIN
         char *temp_filepath = malloc(PATH_MAX);
         const size_t temp_filepath_len = GetTempPathA(PATH_MAX, temp_filepath);
 
@@ -269,10 +263,18 @@ char *cider_temp_filepath()
         temp_filepath[temp_filepath_len] = '\0';
 
         return temp_filepath;
-    )
+    #endif
 }
 
-#if !defined(cider_forward_slash_delims)
+bool cider_file_exists(const char *const file)
+{
+    return
+        CIDER_PLAT_LIN_INSERT(                      0 ==       access(file, F_OK))
+        CIDER_PLAT_WIN_INSERT(INVALID_FILE_ATTRIBUTES != GetFileAttributesA(file))
+    ;
+}
+
+#ifndef cider_forward_slash_delims
     char *cider_forward_slash_delims(char *const file)
     {
         for (int i = 0; file[i]; ++i)
@@ -287,7 +289,7 @@ char *cider_temp_filepath()
     }
 #endif
 
-#if !defined(cider_back_slash_delims)
+#ifndef cider_back_slash_delims
     char *cider_back_slash_delims(char *const file)
     {
         for (int i = 0; file[i]; ++i)

@@ -2,20 +2,22 @@
 #define CIDER_H
 
 /*
-    Cider v3.0.0 - A small library for path, directory and filename manipulation. Contains various cross-platform utilities in the same realm
-        * Supported OS's:
-            *   Linux |                             Tested each commit on Arch x64
-            * Windows | Rarely tested, sometimes functions are left un-implemented
-        * Find functions below
-        * Report issues, contribute etc at https://github.com/TehhX/Cider
+    Cider v4.1.0 - A small library for path, directory and filename manipulation. Contains various cross-platform utilities in the same realm
+
+    Supported OS's:
+        *   Linux |                             Tested each commit on Arch x64
+        * Windows | Rarely tested, sometimes functions are left un-implemented
+
+    Report issues, contribute etc at https://github.com/TehhX/Cider
 
     File related glossary (Using example /home/user/my_file.txt):
-        * Extension |                                          The type of file after the period in a file. |                    txt
-        *  Filename |                                           The name of a file including its extension. |            my_file.txt
-        *  Filepath |                              The absolute directory up to but excluding the filename. | /home/user/
-        *  Fullname |                                         The absolute directory and filepath together. | /home/user/my_file.txt
-        *  Seminame |  The filename with any amount of preceding directories which don't make it a fullname |       user/my_file.txt
-        *      File |                 A wildcard encompassing any of the above. Must make sense in context. | ??????????????????????
+        * Extension |                                                     The type of file after the period in a file |                    txt
+        *  Filename |                                                      The name of a file including its extension |            my_file.txt
+        *  Filepath |                                         The absolute directory up to but excluding the filename | /home/user/
+        *  Fullname |                                                    The absolute directory and filepath together | /home/user/my_file.txt
+        *  Seminame | A filename with [1,MAX-1] missing preceding directories so as to invalidate its fullname status |       user/my_file.txt
+        *      Name |                          A wildcard encompassing any of the above which terminate in a filename | ??????????????????????
+        *      File |                                                        A wildcard encompassing any of the above | ??????????????????????
 
     Misc glossary:
         * UE-seconds | The amount of seconds since the UNIX epoch
@@ -41,6 +43,7 @@
 #ifdef __GNUC__
     #define CIDER_ATTR_MALLOC __attribute__((malloc))
     #define CIDER_EXTERN extern
+    #define CIDER_ATTR_NONNULL(...) __attribute__((nonnull (__VA_ARGS__)))
 #elif defined(_MSC_VER)
     #define CIDER_ATTR_MALLOC __declspec(noalias) __declspec(restrict)
 
@@ -53,11 +56,14 @@
     #else
         #define CIDER_EXTERN extern
     #endif
+
+    #define CIDER_ATTR_NONNULL(...)
 #else
     #error "Unknown compiler."
 #endif
 
 #include "stdint.h"
+#include "stdbool.h"
 
 /*
     @brief Returns filepath of the local data folder. This will be %appdata%\ on Windows, and $HOME/.local/share/ on Linux
@@ -90,7 +96,7 @@ CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_calling_filepath();
         @warning `file` MUST be malloc'd
         @warning `file` path delimiters MUST be system default
 */
-CIDER_EXTERN char *cider_to_filepath(char *file);
+CIDER_EXTERN char *cider_to_filepath(char *file) CIDER_ATTR_NONNULL(1);
 
 /*
     @brief Returns the filename extracted from `file`. Modifies in place
@@ -102,7 +108,7 @@ CIDER_EXTERN char *cider_to_filepath(char *file);
         @warning `file` MUST be malloc'd
         @warning `file` path delimiters MUST be system default
 */
-CIDER_EXTERN char *cider_to_filename(char *file);
+CIDER_EXTERN char *cider_to_filename(char *file) CIDER_ATTR_NONNULL(1);
 
 /*
     @brief Returns the extension extracted from `file`. Modifies in place
@@ -114,7 +120,7 @@ CIDER_EXTERN char *cider_to_filename(char *file);
         @warning `file` MUST be malloc'd
         @warning `file` path delimiters MUST be system default
 */
-CIDER_EXTERN char *cider_to_extension(char *file);
+CIDER_EXTERN char *cider_to_extension(char *file) CIDER_ATTR_NONNULL(1);
 
 /*
     @brief Returns a fullpath constructed from a provided filepath and filename. Modifies in place
@@ -128,7 +134,7 @@ CIDER_EXTERN char *cider_to_extension(char *file);
 
         @note Essentially a fancy strcat
 */
-CIDER_EXTERN char *cider_construct_fullname(char *filepath, const char *filename);
+CIDER_EXTERN char *cider_construct_fullname(char *filepath, const char *filename) CIDER_ATTR_NONNULL(1, 2);
 
 /*
     @brief Returns malloc'd string containing canonical fullname of file
@@ -139,18 +145,16 @@ CIDER_EXTERN char *cider_construct_fullname(char *filepath, const char *filename
 
         @warning May still be bugs to iron out on Linux
 */
-CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_canonicalize_file(const char *file);
+CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_canonicalize_file(const char *file) CIDER_ATTR_NONNULL(1);
 
 /*
     @brief Returns the modification date of file in UE-seconds
 
         @param file The file to check
 
-        @returns The modification date of `file` in UE-seconds
-
-        @warning Not well tested on Windows
+        @returns The modification date of `file` in UE-seconds, or 0 if error occurred
 */
-CIDER_EXTERN uint32_t cider_modification_date_file(const char *file);
+CIDER_EXTERN uint32_t cider_modification_date_file(const char *file) CIDER_ATTR_NONNULL(1);
 
 /*
     @brief Resets all occurrences of `to_reset` in `path` to default path delimiter. Modifies in place
@@ -162,7 +166,7 @@ CIDER_EXTERN uint32_t cider_modification_date_file(const char *file);
 
         @warning This will replace all occurrences of `to_reset`, even those you may not want replaced
 */
-CIDER_EXTERN char *cider_reset_delims(char *path, char to_reset);
+CIDER_EXTERN char *cider_reset_delims(char *path, char to_reset) CIDER_ATTR_NONNULL(1);
 
 /*
     @brief Returns filepath of temporary folder
@@ -171,19 +175,46 @@ CIDER_EXTERN char *cider_reset_delims(char *path, char to_reset);
 */
 CIDER_ATTR_MALLOC CIDER_EXTERN char *cider_temp_filepath();
 
+/*
+    @brief Checks if `file` exists
+
+        @param file The file to check the existence of
+
+        @returns True if `file` exists, else false
+
+        @note Will return true even if `file` isn't strictly a name, eg. is a filepath
+*/
+CIDER_EXTERN bool cider_file_exists(const char *file) CIDER_ATTR_NONNULL(1);
+
+/*
+    @brief Replaces all system-default delimiters with forward slashes
+
+        @param file The string to modify
+
+        @returns `file`
+
+        @warning Will not do anything if system-default delimiters are forward slashes
+        @warning Make sure to only pass `file` with untouched system-default delimiters
+*/
 #if CIDER_PATH_DELIM_C != '/'
-    // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system uses forward-slash delimiters, so no action is taken
-    CIDER_EXTERN char *cider_forward_slash_delims(char *const file);
+    CIDER_EXTERN char *cider_forward_slash_delims(char *file) CIDER_ATTR_NONNULL(1);
 #else
-    // Forward Slash Delims - Changes all instances of '\'s to '/'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with forward-slashes as default path delimiters. This system does NOT use forward-slash delimiters, so they are changed to forward-slashes
     #define cider_forward_slash_delims(file) file
 #endif
 
+/*
+    @brief Replaces all system-default delimiters with backward slashes
+
+        @param file The string to modify
+
+        @returns `file`
+
+        @warning Will not do anything if system-default delimiters are backwards slashes
+        @warning Make sure to only pass `file` with untouched system-default delimiters
+*/
 #if CIDER_PATH_DELIM_C != '\\'
-    // Back Slash Delims - Changes all instances of '/'s to '\'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with back-slashes as default path delimiters. This system does NOT use back-slash delimiters, so they are changed to back-slashes
-    CIDER_EXTERN char *cider_back_slash_delims(char *const file);
+    CIDER_EXTERN char *cider_back_slash_delims(char *file) CIDER_ATTR_NONNULL(1);
 #else
-    // Back Slash Delims - Changes all instances of '/'s to '\'s. Modifies in place and returns file. Not intended for use with Cider once delims are not system default. Will not do anything on systems with back-slashes as default path delimiters. This system uses back-slash delimiters, so no action is taken
     #define cider_back_slash_delims(file) file
 #endif
 
